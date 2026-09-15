@@ -3,6 +3,13 @@
 This file is maintained by [release-please](https://github.com/googleapis/release-please) from
 Conventional Commit messages. Do not edit it by hand.
 
+## [0.2.0](https://github.com/KRoperUK/give-blood-py/compare/v0.1.0...v0.2.0) (2026-09-15)
+
+
+### Features
+
+* live smoke tests and a completed read surface ([#19](https://github.com/KRoperUK/give-blood-py/issues/19)) ([a8c48ec](https://github.com/KRoperUK/give-blood-py/commit/a8c48ec4f5231a8cb79d8117d66ea439c3025bf7))
+
 ## [0.1.0](https://github.com/KRoperUK/give-blood-py/compare/v0.1.0...v0.1.0) (2026-09-15)
 
 
