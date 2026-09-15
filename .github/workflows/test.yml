@@ -1,0 +1,183 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Docs-only pull requests shouldn't burn a matrix; the aggregate `ci` gate
+  # passes automatically when this reports no code changes.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'nhs_give_blood/**'
+              - 'tests/**'
+              - 'scripts/**'
+              - 'pyproject.toml'
+              - 'poetry.lock'
+              - 'bandit.yaml'
+              - '.pre-commit-config.yaml'
+              - '.github/workflows/test.yml'
+
+  lint:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.13"
+
+      # Install ruff at exactly the version pinned in .pre-commit-config.yaml so
+      # CI and local hooks can never disagree about what "clean" means.
+      - name: Resolve pinned ruff version
+        id: ruff
+        run: |
+          version=$(grep -A2 'ruff-pre-commit' .pre-commit-config.yaml | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 | tr -d v)
+          test -n "$version" || { echo "could not resolve ruff pin"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - run: pip install "ruff==${{ steps.ruff.outputs.version }}"
+      - run: ruff check --output-format=github .
+      - run: ruff format --check .
+
+      # Catches pyproject/poetry.lock drift and invalid metadata here, rather
+      # than at publish time when the feedback is a failed release.
+      - name: Validate packaging metadata
+        run: |
+          pipx install poetry || pip install poetry
+          poetry check
+
+  typecheck:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.13"
+      - uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1.4.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - run: poetry install --no-interaction
+      # Rewrite mypy output into GitHub annotations so failures land on the diff.
+      - name: mypy
+        run: |
+          set -o pipefail
+          poetry run mypy 2>&1 | sed -E 's/^([^:]+):([0-9]+): error: (.*)$/::error file=\1,line=\2::\3/'
+
+  security:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # detect-secrets needs history to diff the baseline against.
+          fetch-depth: 0
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.13"
+      - run: pip install bandit detect-secrets
+
+      - name: bandit
+        run: bandit -c bandit.yaml -r nhs_give_blood
+
+      # Fails if a new secret appears that isn't in the audited baseline.
+      - name: detect-secrets
+        run: |
+          git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline
+
+      # This API's responses are saturated with donor PII, so the guard runs over
+      # the whole tree in CI, not just the staged diff.
+      - name: block PII and credentials
+        run: git ls-files -z | xargs -0 python scripts/check_pii.py
+
+  pre-commit:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.13"
+      - uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1.4.1
+      - run: poetry install --no-interaction
+      # pre-push hooks (mypy, pytest) have their own jobs; running them here too
+      # would double the CI time for no extra signal.
+      - run: poetry run pre-commit run --all-files --show-diff-on-failure --hook-stage pre-commit
+
+  test:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1.4.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
+      - run: poetry install --no-interaction
+      # Tests never touch the network: aresponses mocks the API and every fixture
+      # is a sanitised capture. `-m 'not live'` comes from pyproject addopts.
+      - run: poetry run pytest --cov --cov-report=term-missing
+
+  # Single required status check. Passes automatically on docs-only changes.
+  ci:
+    needs: [changes, lint, typecheck, security, pre-commit, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate results
+        run: |
+          if [ "${{ needs.changes.outputs.code }}" != "true" ]; then
+            echo "No code changes; nothing to gate."
+            exit 0
+          fi
+          for result in \
+            "lint=${{ needs.lint.result }}" \
+            "typecheck=${{ needs.typecheck.result }}" \
+            "security=${{ needs.security.result }}" \
+            "pre-commit=${{ needs['pre-commit'].result }}" \
+            "test=${{ needs.test.result }}"
+          do
+            name="${result%%=*}"
+            status="${result##*=}"
+            if [ "$status" != "success" ]; then
+              echo "::error::$name did not succeed ($status)"
+              exit 1
+            fi
+          done
+          echo "All required jobs succeeded."

@@ -1,0 +1,879 @@
+{
+  "sessions": [
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-09-16T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "1",
+          "availableSlots": 1
+        }
+      ],
+      "sessionStatus": "C",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-09-17T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "1",
+          "availableSlots": 1
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "0",
+          "availableSlots": 0
+        }
+      ],
+      "sessionStatus": "C",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-07T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "2",
+          "availableSlots": 2
+        }
+      ],
+      "sessionStatus": "C",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-08T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "1",
+          "availableSlots": 1
+        }
+      ],
+      "sessionStatus": "C",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-12T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "1",
+          "availableSlots": 1
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-13T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1310",
+          "endTime": "1500",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "1",
+          "availableSlots": 1
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-14T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "2",
+          "availableSlots": 2
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-15T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "2",
+          "availableSlots": 2
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "2",
+          "availableSlots": 2
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-16T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "1",
+          "availableSlots": 1
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "0",
+          "availableSlots": 0
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-19T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "1",
+          "availableSlots": 1
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "2",
+          "availableSlots": 2
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-20T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "4",
+          "availableSlots": 4
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-21T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "2",
+          "availableSlots": 2
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "1",
+          "availableSlots": 1
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-22T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "5",
+          "availableSlots": 5
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-23T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "1",
+          "availableSlots": 1
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "5",
+          "availableSlots": 5
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-24T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "2",
+          "availableSlots": 2
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-26T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "4",
+          "availableSlots": 4
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "5",
+          "availableSlots": 5
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-27T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "3",
+          "availableSlots": 3
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-28T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "5",
+          "availableSlots": 5
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-29T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "4",
+          "availableSlots": 4
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-30T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "1",
+          "availableSlots": 1
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-10-31T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "0",
+          "availableSlots": 0
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-01T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "3",
+          "availableSlots": 3
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "6",
+          "availableSlots": 6
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-02T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "3",
+          "availableSlots": 3
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "2",
+          "availableSlots": 2
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-03T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "4",
+          "availableSlots": 4
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-04T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "2",
+          "availableSlots": 2
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "2",
+          "availableSlots": 2
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-05T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "2",
+          "availableSlots": 2
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-06T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "3",
+          "availableSlots": 3
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "2",
+          "availableSlots": 2
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-07T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "3",
+          "availableSlots": 3
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-08T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "5",
+          "availableSlots": 5
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "6",
+          "availableSlots": 6
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-09T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "4",
+          "availableSlots": 4
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-10T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "4",
+          "availableSlots": 4
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "4",
+          "availableSlots": 4
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-11T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "4",
+          "availableSlots": 4
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-12T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "1130",
+          "endTime": "1500",
+          "freeSlots": "5",
+          "availableSlots": 5
+        },
+        {
+          "startTime": "1545",
+          "endTime": "1930",
+          "freeSlots": "4",
+          "availableSlots": 4
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-13T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "4",
+          "availableSlots": 4
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "3",
+          "availableSlots": 3
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    },
+    {
+      "sessionId": "CS0000",
+      "sessionDate": "2026-11-14T00:00:00",
+      "venue": null,
+      "periods": [
+        {
+          "startTime": "0830",
+          "endTime": "1205",
+          "freeSlots": "2",
+          "availableSlots": 2
+        },
+        {
+          "startTime": "1250",
+          "endTime": "1630",
+          "freeSlots": "4",
+          "availableSlots": 4
+        }
+      ],
+      "sessionStatus": "F",
+      "bookingFlag": "Y",
+      "appointmentStatus": "Y",
+      "availability": "Y",
+      "weightingFactor": null,
+      "notes": []
+    }
+  ]
+}

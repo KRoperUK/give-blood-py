@@ -1,0 +1,391 @@
+{
+  "accessToken": "synthetic.access.token",
+  "refreshToken": "synthetic-refresh-token",
+  "accountDetails": {
+    "eligibility": {
+      "nextPossibleDonationDate": "2026-09-28T00:00:00",
+      "nextPossibleAppointmentDate": "2026-11-07T00:00:00"
+    },
+    "bloodGroup": "A-",
+    "gender": "Not specified",
+    "genderIdentity": "Not specified",
+    "sexAtBirth": "Not specified",
+    "ethnicOriginDescription": "Not specified",
+    "dateOfBirth": "1990-01-01T00:00:00",
+    "donationCredit": 15,
+    "registrationIntent": null,
+    "hasDonationIntent": false,
+    "hasPreviousDonations": true,
+    "procedureType": "Platelet",
+    "procedureCode": "PL1",
+    "procedureDescription": "Platelet",
+    "donationIntentType": null,
+    "donationIntentCode": null,
+    "donationIntentDescription": null,
+    "showBookingCTA": true,
+    "searchDatesFrom": {
+      "donationIntent": null,
+      "wholeBlood": "2026-10-12T00:00:00",
+      "plasma": "2026-10-12T00:00:00"
+    },
+    "showWelcomePage": false,
+    "serology": {
+      "shortHand": "rr",
+      "roEnabled": false
+    },
+    "appointments": [
+      {
+        "status": "A",
+        "time": "T1730",
+        "procedureCode": "PLT",
+        "procedureType": "Platelet",
+        "procedureDescription": "Platelet",
+        "cancellationCode": null,
+        "session": {
+          "sessionId": "CS0000",
+          "sessionDate": "2026-10-08T00:00:00",
+          "venue": {
+            "venueId": "TSTV1",
+            "donorPreferred": false,
+            "venueName": "Testville, Example Donor Centre",
+            "externalLocation": "Example Building",
+            "internalLocation": "Example Room",
+            "address": {
+              "type": "V",
+              "companyName": null,
+              "lines": [
+                "1 Example Street",
+                "2 Example Street"
+              ],
+              "postcode": "SW1A 1AA",
+              "latitude": "51.5",
+              "longitude": "-0.12"
+            },
+            "latitude": "51.5",
+            "longitude": "-0.12",
+            "notes": [
+              "Parking is available on site. Please display a valid ticket.",
+              "Step-free access via the main entrance.",
+              "To book or change an appointment, please telephone 07700900000.",
+              "Please bring photo identification to your first appointment."
+            ],
+            "isWholeBloodSupported": true,
+            "isPlasmaSupported": false,
+            "isPlateletSupported": true,
+            "isDonorCentre": true
+          },
+          "periods": [
+            {
+              "startTime": "1130",
+              "endTime": "1500",
+              "freeSlots": "-1",
+              "availableSlots": 0
+            },
+            {
+              "startTime": "1545",
+              "endTime": "1930",
+              "freeSlots": "-1",
+              "availableSlots": 0
+            }
+          ],
+          "sessionStatus": "C",
+          "bookingFlag": "Y",
+          "appointmentStatus": "Y",
+          "availability": "Y",
+          "weightingFactor": null,
+          "notes": []
+        }
+      },
+      {
+        "status": "A",
+        "time": "T1015",
+        "procedureCode": "PLT",
+        "procedureType": "Platelet",
+        "procedureDescription": "Platelet",
+        "cancellationCode": null,
+        "session": {
+          "sessionId": "CS0000",
+          "sessionDate": "2026-10-24T00:00:00",
+          "venue": {
+            "venueId": "TSTV1",
+            "donorPreferred": false,
+            "venueName": "Testville, Example Donor Centre",
+            "externalLocation": "Example Building",
+            "internalLocation": "Example Room",
+            "address": {
+              "type": "V",
+              "companyName": null,
+              "lines": [
+                "1 Example Street",
+                "2 Example Street"
+              ],
+              "postcode": "SW1A 1AA",
+              "latitude": "51.5",
+              "longitude": "-0.12"
+            },
+            "latitude": "51.5",
+            "longitude": "-0.12",
+            "notes": [
+              "Parking is available on site. Please display a valid ticket.",
+              "Step-free access via the main entrance.",
+              "To book or change an appointment, please telephone 07700900000.",
+              "Please bring photo identification to your first appointment."
+            ],
+            "isWholeBloodSupported": true,
+            "isPlasmaSupported": false,
+            "isPlateletSupported": true,
+            "isDonorCentre": true
+          },
+          "periods": [
+            {
+              "startTime": "0830",
+              "endTime": "1205",
+              "freeSlots": "-1",
+              "availableSlots": 0
+            },
+            {
+              "startTime": "1250",
+              "endTime": "1630",
+              "freeSlots": "-1",
+              "availableSlots": 0
+            }
+          ],
+          "sessionStatus": "F",
+          "bookingFlag": "Y",
+          "appointmentStatus": "Y",
+          "availability": "Y",
+          "weightingFactor": null,
+          "notes": []
+        }
+      }
+    ],
+    "registrationVenue": null,
+    "emailChangePending": false,
+    "nearestPlasmaVenue": {
+      "venue": {
+        "wholeBloodSupported": false,
+        "plasmaSupported": true,
+        "plateletSupported": false,
+        "lat": 51.5,
+        "long": -0.12,
+        "venueId": "TSTV1",
+        "donorPreferred": false,
+        "venueName": "Testville, Example Donor Centre",
+        "externalLocation": "Example Building",
+        "internalLocation": "Example Room",
+        "address": {
+          "type": null,
+          "companyName": null,
+          "lines": [
+            "1 Example Street",
+            "2 Example Street"
+          ],
+          "postcode": "SW1A 1AA",
+          "latitude": "51.5",
+          "longitude": "-0.12"
+        },
+        "latitude": "51.5",
+        "longitude": "-0.12",
+        "notes": null,
+        "isWholeBloodSupported": true,
+        "isPlasmaSupported": false,
+        "isPlateletSupported": false,
+        "isDonorCentre": false
+      },
+      "sessionDayCount": 0,
+      "venueDistance": 9.929378421397633,
+      "dateOfNextSession": "0001-01-01T00:00:00",
+      "isDonorCentre": false,
+      "isCommunityCentre": true,
+      "isWholeBloodSupported": false,
+      "isPlasmaSupported": true,
+      "isPlateletSupported": false,
+      "venueDistanceFromHome": null
+    },
+    "suggestedSession": {
+      "type": "A",
+      "session": null
+    },
+    "isPlateletPlus": false,
+    "lastDonatedVenueId": "TSTV1",
+    "awardsData": {
+      "registrationDate": "2020-02-01T00:00:00",
+      "awardState": "Bronze",
+      "showAsAchievement": true,
+      "totalCredits": 15,
+      "totalAwards": 6,
+      "awards": [
+        {
+          "isAchieved": true,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 1
+        },
+        {
+          "isAchieved": true,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 2
+        },
+        {
+          "isAchieved": true,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 3
+        },
+        {
+          "isAchieved": true,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 4
+        },
+        {
+          "isAchieved": true,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 5
+        },
+        {
+          "isAchieved": true,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 10
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 25
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 50
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 75
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 100
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 150
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 250
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 500
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 750
+        },
+        {
+          "isAchieved": false,
+          "title": "Ms",
+          "awardedDate": null,
+          "creditCriteria": 1000
+        }
+      ],
+      "highestAchieved": {
+        "isAchieved": true,
+        "title": "Ms",
+        "awardedDate": null,
+        "creditCriteria": 10
+      }
+    },
+    "responseFromApi": null,
+    "donorID": "D0000000",
+    "referToCallCentre": "N",
+    "title": "Ms",
+    "forenames": {
+      "firstForename": "Ada",
+      "secondForename": "",
+      "otherForenames": ""
+    },
+    "surname": "Testerson",
+    "addresses": [
+      {
+        "type": "H",
+        "companyName": null,
+        "lines": [
+          "1 Example Street",
+          "2 Example Street",
+          "3 Example Street"
+        ],
+        "postcode": "SW1A 1AA",
+        "latitude": "51.5",
+        "longitude": "-0.12"
+      }
+    ],
+    "telephones": [
+      {
+        "type": "M",
+        "number": "07700900000"
+      }
+    ],
+    "emails": [
+      {
+        "type": "EM",
+        "address": "donor@example.invalid"
+      }
+    ],
+    "correspondence": "H",
+    "ethnicOrigin": "00",
+    "venues": [
+      {
+        "venueID": "TSTV1",
+        "venPref": "D",
+        "venueName": "Testville, Example Donor Centre",
+        "externalLocation": "Example Building",
+        "internalLocation": "Example Room",
+        "address": {
+          "type": "V",
+          "companyName": null,
+          "lines": [
+            "1 Example Street",
+            "2 Example Street"
+          ],
+          "postcode": "SW1A 1AA",
+          "latitude": "51.5",
+          "longitude": "-0.12"
+        },
+        "gridReference": "TQ000000",
+        "latitude": "51.5",
+        "longitude": "-0.12",
+        "notes": [
+          "Parking is available on site. Please display a valid ticket.",
+          "Step-free access via the main entrance.",
+          "To book or change an appointment, please telephone 07700900000.",
+          "Please bring photo identification to your first appointment."
+        ]
+      }
+    ],
+    "language": "EN",
+    "printDHC": "N",
+    "newOrReturn": "N",
+    "checkVenue": "N",
+    "registrationDate": "20200201",
+    "priorityP": null,
+    "priorityB": null
+  }
+}

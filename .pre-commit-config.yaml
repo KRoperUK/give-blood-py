@@ -1,0 +1,73 @@
+# Ruff and mypy versions are pinned to match pyproject.toml's dev group; CI
+# asserts the two agree so a bump can't drift.
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      # Blocks committing a private key outright.
+      - id: detect-private-key
+      # This API's payloads are full of donor PII; an accidental capture
+      # committed as a "test file" is the likeliest way it escapes.
+      - id: check-case-conflict
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.21
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  # Static security analysis of the library itself. Scoped to the package:
+  # tests legitimately use asserts and synthetic credentials.
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        args: [-c, bandit.yaml]
+        files: ^nhs_give_blood/
+
+  # Entropy-based secret detection across everything, with an audited baseline.
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: ^(poetry\.lock|uv\.lock|\.secrets\.baseline)$
+
+  - repo: local
+    hooks:
+      # Knows this API's payload shapes: donor ids, donation ids, UK postcodes
+      # and phone numbers, and the app's token formats. detect-secrets and
+      # bandit do not catch any of those.
+      - id: check-pii
+        name: block real PII and credentials
+        entry: python scripts/check_pii.py
+        language: system
+        pass_filenames: true
+        types: [text]
+
+      # Kept at pre-push rather than pre-commit so ordinary commits stay fast
+      # while pushes mirror CI.
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: pytest
+        name: pytest
+        entry: pytest -q
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

@@ -1,0 +1,89 @@
+{
+  "status": 1,
+  "results": [
+    {
+      "venue": {
+        "venueId": "TSTV1",
+        "donorPreferred": false,
+        "venueName": "Testville, Example Donor Centre",
+        "externalLocation": "Example Building",
+        "internalLocation": "Example Room",
+        "address": {
+          "type": "V",
+          "companyName": null,
+          "lines": [
+            "1 Example Street",
+            "2 Example Street"
+          ],
+          "postcode": "SW1A 1AA",
+          "latitude": "51.5",
+          "longitude": "-0.12"
+        },
+        "latitude": "51.5",
+        "longitude": "-0.12",
+        "notes": [],
+        "isWholeBloodSupported": true,
+        "isPlasmaSupported": false,
+        "isPlateletSupported": false,
+        "isDonorCentre": false
+      },
+      "sessionDayCount": 44,
+      "venueDistance": 10.07,
+      "dateOfNextSession": "2026-09-15T00:00:00",
+      "isDonorCentre": true,
+      "isCommunityCentre": false,
+      "isWholeBloodSupported": true,
+      "isPlasmaSupported": false,
+      "isPlateletSupported": true,
+      "venueDistanceFromHome": null
+    }
+  ],
+  "potentialLocations": null,
+  "errorCode": "",
+  "errorInformation": "",
+  "startDateOffsetMonths": 4,
+  "maxSearchDistance": 20.0,
+  "furthestVenueDistance": 10.07,
+  "nearestPlasmaVenue": {
+    "venue": {
+      "wholeBloodSupported": false,
+      "plasmaSupported": true,
+      "plateletSupported": false,
+      "lat": 51.5,
+      "long": -0.12,
+      "venueId": "TSTV1",
+      "donorPreferred": false,
+      "venueName": "Testville, Example Donor Centre",
+      "externalLocation": "Example Building",
+      "internalLocation": "Example Room",
+      "address": {
+        "type": null,
+        "companyName": null,
+        "lines": [
+          "1 Example Street",
+          "2 Example Street"
+        ],
+        "postcode": "SW1A 1AA",
+        "latitude": "51.5",
+        "longitude": "-0.12"
+      },
+      "latitude": "51.5",
+      "longitude": "-0.12",
+      "notes": null,
+      "isWholeBloodSupported": true,
+      "isPlasmaSupported": false,
+      "isPlateletSupported": false,
+      "isDonorCentre": false
+    },
+    "sessionDayCount": 0,
+    "venueDistance": 10.0,
+    "dateOfNextSession": "0001-01-01T00:00:00",
+    "isDonorCentre": false,
+    "isCommunityCentre": true,
+    "isWholeBloodSupported": false,
+    "isPlasmaSupported": true,
+    "isPlateletSupported": false,
+    "venueDistanceFromHome": null
+  },
+  "count": 1
+}

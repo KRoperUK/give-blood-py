@@ -1,0 +1,8 @@
+{
+  "appointmentRequestBetaBanner": false,
+  "chatbot": false,
+  "checkIn": false,
+  "failover": false,
+  "parFullSessions": false,
+  "waitingList": false
+}

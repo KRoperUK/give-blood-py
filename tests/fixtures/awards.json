@@ -1,0 +1,105 @@
+{
+  "registrationDate": "2020-02-01T00:00:00",
+  "awardState": "Bronze",
+  "showAsAchievement": true,
+  "totalCredits": 15,
+  "totalAwards": 6,
+  "awards": [
+    {
+      "isAchieved": true,
+      "title": "Ms",
+      "awardedDate": "2020-10-15T00:00:00",
+      "creditCriteria": 1
+    },
+    {
+      "isAchieved": true,
+      "title": "Ms",
+      "awardedDate": "2021-01-20T00:00:00",
+      "creditCriteria": 2
+    },
+    {
+      "isAchieved": true,
+      "title": "Ms",
+      "awardedDate": "2023-05-04T00:00:00",
+      "creditCriteria": 3
+    },
+    {
+      "isAchieved": true,
+      "title": "Ms",
+      "awardedDate": "2023-09-10T00:00:00",
+      "creditCriteria": 4
+    },
+    {
+      "isAchieved": true,
+      "title": "Ms",
+      "awardedDate": "2023-12-06T00:00:00",
+      "creditCriteria": 5
+    },
+    {
+      "isAchieved": true,
+      "title": "Ms",
+      "awardedDate": "2025-03-10T00:00:00",
+      "creditCriteria": 10
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 25
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 50
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 75
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 100
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 150
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 250
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 500
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 750
+    },
+    {
+      "isAchieved": false,
+      "title": "Ms",
+      "awardedDate": null,
+      "creditCriteria": 1000
+    }
+  ],
+  "highestAchieved": {
+    "isAchieved": true,
+    "title": "Ms",
+    "awardedDate": "2025-03-10T00:00:00",
+    "creditCriteria": 10
+  }
+}

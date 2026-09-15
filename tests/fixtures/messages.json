@@ -1,0 +1,60 @@
+{
+  "messages": {
+    "donorMessages": [
+      {
+        "type": "donorMessages",
+        "title": "Ms",
+        "text": "We\u2019ve improved the booking process for B negative donors. When you next book, you\u2019ll be able to see all appointment times at every donation venue, even those that are fully booked, and request a time that suits you. \n",
+        "showOnlyOnce": false,
+        "id": "64cb410d-03e4-4c6a-b9f0-0e7d5219b3a6",
+        "bloodGroups": [
+          "B-"
+        ]
+      },
+      {
+        "type": "donorMessages",
+        "title": "Ms",
+        "text": "We\u2019ve improved the booking process for O negative donors. When you next book, you\u2019ll be able to see all appointment times at every donation venue, even those that are fully booked, and request a time that suits you. ",
+        "showOnlyOnce": false,
+        "id": "f22bf3a5-7110-4384-a83d-514eb63a8b08",
+        "bloodGroups": [
+          "O-"
+        ]
+      },
+      {
+        "type": "donorMessages",
+        "title": "Ms",
+        "text": "Patients need your support today. Please help by booking and keeping an appointment to donate as soon as possible. Thank you.  ",
+        "showOnlyOnce": false,
+        "id": "52ed421c-2bb1-4607-b8da-88ec5ce19e39",
+        "bloodGroups": [
+          "A-"
+        ]
+      }
+    ],
+    "endOfBooking": [
+      {
+        "type": "endOfBooking",
+        "title": "Ms",
+        "text": "Please check your contact details are up to date. This helps us contact you with any important updates.",
+        "showOnlyOnce": false,
+        "id": "4b977629-0ba2-471e-b3cc-9027fae53dea",
+        "bloodGroups": [
+          "All"
+        ]
+      }
+    ],
+    "endOfSignUp": [
+      {
+        "type": "endOfSignUp",
+        "title": "Ms",
+        "text": "You are now registered, excellent work! Appointments are always in demand, don\u2019t worry if you can't find an appointment straight away; please do make a booking to give blood in the months ahead as patients need your donations throughout the year. Please refer to the email you will have received to view our welcome material with instructions on how to use the system.",
+        "showOnlyOnce": false,
+        "id": "10f87c2a-fc63-45e2-9b02-7cb0b6412ffa",
+        "bloodGroups": [
+          "All"
+        ]
+      }
+    ]
+  }
+}

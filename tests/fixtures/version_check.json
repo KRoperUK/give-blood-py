@@ -1,0 +1,7 @@
+{
+  "newVersionAvailable": false,
+  "forceUpdateRequired": false,
+  "updateMessage": null,
+  "updateMessageWithLink": "A new app version is available to download. We recommend you download the latest update to ensure the best experience.\r\n\r\nIf you are unable to download the updated version it may be that your operating system is no longer supported. You can continue using this version while available, or log in through a web browser at {link}",
+  "updateMessageLink": "https://my.blood.co.uk/login/"
+}

@@ -1,0 +1,13 @@
+# Bandit configuration for nhs_give_blood.
+#
+# Only the library is scanned. Tests are excluded because they legitimately use
+# `assert` (B101) and synthetic credential literals (B105/B106), and excluding
+# them keeps real findings visible instead of buried in noise.
+exclude_dirs:
+  - tests
+  - .venv
+  - scripts
+
+# B311 (non-cryptographic PRNG) is suppressed inline at its single use site —
+# retry jitter — rather than globally, so a future genuine misuse still fails.
+skips: []

@@ -1,0 +1,106 @@
+# PEP 621 metadata. Poetry 2 deprecates the old `[tool.poetry]` fields for
+# anything expressible in `[project]`, so only Poetry-specific settings (package
+# discovery, dependency groups) live under `[tool.poetry]`.
+[project]
+name = "nhs-give-blood"
+version = "0.1.0"
+description = "Async Python client for the NHS Give Blood (NHSBT) donor app API"
+authors = [{ name = "Kieran Roper" }]
+license = "MIT"
+license-files = ["LICENSE"]
+readme = "README.md"
+keywords = ["nhs", "nhsbt", "blood", "donation", "asyncio", "homeassistant"]
+# 3.12 is the floor: the code relies on PEP 695 `type` statement semantics.
+# Deliberately below the consuming integration's floor (Home Assistant 2026.8
+# needs Python 3.14) so the library stays usable standalone and on older Home
+# Assistant releases.
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Framework :: AsyncIO",
+    "Topic :: Home Automation",
+]
+dependencies = [
+    "aiohttp>=3.9.0,<4.0.0",
+    "pydantic>=2.0.0,<3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/KRoperUK/give-blood-py"
+Repository = "https://github.com/KRoperUK/give-blood-py"
+Issues = "https://github.com/KRoperUK/give-blood-py/issues"
+Changelog = "https://github.com/KRoperUK/give-blood-py/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/KRoperUK/give-blood-py/blob/main/docs/api-reference.md"
+"Home Assistant integration" = "https://give-blood-hass.kroper.uk"
+
+[project.scripts]
+give-blood = "nhs_give_blood.cli:main"
+
+[tool.poetry]
+packages = [{ include = "nhs_give_blood" }]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^1.0.0"
+pytest-cov = "^6.0.0"
+aresponses = "^3.0.0"
+ruff = "==0.15.21"
+mypy = "^1.0.0"
+bandit = "^1.8.0"
+detect-secrets = "^1.5.0"
+pre-commit = "^3.6.0"
+python-dotenv = "^1.2.1"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "SIM", "S"]
+# E501 (line length) is handled by the formatter; long strings/comments are fine.
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests legitimately use assert and synthetic credential literals.
+"tests/**" = ["S101", "S105", "S106", "S603", "S607"]
+"demo.py" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["nhs_give_blood"]
+ignore_missing_imports = true
+disallow_untyped_defs = true
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+
+[tool.pytest.ini_options]
+# All async tests use asyncio; "auto" means new tests don't each need the
+# @pytest.mark.asyncio decorator.
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v -m 'not live'"
+markers = [
+    "live: hits the real NHSBT API and needs credentials (deselect with -m 'not live')",
+]
+
+[tool.coverage.run]
+source = ["nhs_give_blood"]
+omit = ["nhs_give_blood/cli.py"]
+
+[tool.coverage.report]
+show_missing = true
+# Guardrail so coverage can't silently regress. Raise as coverage improves.
+fail_under = 80
+exclude_lines = ["pragma: no cover", "if __name__ == .__main__.", "if TYPE_CHECKING:"]
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

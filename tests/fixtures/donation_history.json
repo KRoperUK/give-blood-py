@@ -1,0 +1,493 @@
+{
+  "donorID": "D0000000",
+  "hasFurtherDonations": true,
+  "donation": [
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2026-09-14T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000.",
+            "Please bring photo identification to your first appointment."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "A"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2026-08-01T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000.",
+            "Please bring photo identification to your first appointment."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "R"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2025-10-15T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000.",
+            "Please bring photo identification to your first appointment."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "R"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2025-03-10T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "A"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2025-02-06T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "A"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2024-12-23T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "R"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2024-06-03T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "L"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2024-04-11T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "B"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2023-12-06T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street",
+              "3 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "B"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2023-09-10T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street",
+              "3 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "B"
+    },
+    {
+      "donationId": "G000000000000X",
+      "session": {
+        "sessionId": "CS0000",
+        "sessionDate": "2023-05-04T00:00:00",
+        "venue": {
+          "venueId": "TSTV1",
+          "donorPreferred": false,
+          "venueName": "Testville, Example Donor Centre",
+          "externalLocation": "Example Building",
+          "internalLocation": "Example Room",
+          "address": {
+            "type": "V",
+            "companyName": null,
+            "lines": [
+              "1 Example Street",
+              "2 Example Street"
+            ],
+            "postcode": "SW1A 1AA",
+            "latitude": "51.5",
+            "longitude": "-0.12"
+          },
+          "latitude": "51.5",
+          "longitude": "-0.12",
+          "notes": [
+            "Parking is available on site. Please display a valid ticket.",
+            "Step-free access via the main entrance.",
+            "To book or change an appointment, please telephone 07700900000."
+          ],
+          "isWholeBloodSupported": true,
+          "isPlasmaSupported": false,
+          "isPlateletSupported": false,
+          "isDonorCentre": false
+        },
+        "periods": [],
+        "sessionStatus": null,
+        "bookingFlag": null,
+        "appointmentStatus": null,
+        "availability": null,
+        "weightingFactor": null,
+        "notes": []
+      },
+      "type": "B"
+    }
+  ]
+}

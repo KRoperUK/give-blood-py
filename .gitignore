@@ -1,0 +1,28 @@
+# Secrets — this API's responses are saturated with donor PII, and .env holds
+# live credentials. Never commit either.
+.env
+*.env
+!.env.example
+tokens.json
+give_blood_tokens.json
+*.chlsj
+captures/
+/tmp-capture/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv*/
+.python-version
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
