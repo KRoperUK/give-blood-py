@@ -75,6 +75,31 @@ SAFE_EMAIL_DOMAINS = (
     "test.invalid",
     "localhost",
 )
+
+#: File extensions that mean an "email-shaped" match is really a filename.
+#: Home Assistant's retina asset naming (``icon@2x.png``) parses as an address
+#: with local part ``icon`` and domain ``2x.png``, so without this every brand
+#: asset reference is a false positive — and a scanner that cries wolf gets
+#: switched off.
+FILENAME_SUFFIXES = (
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".svg",
+    ".webp",
+    ".ico",
+    ".css",
+    ".js",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".md",
+    ".py",
+    ".txt",
+    ".zip",
+)
 #: ``SW1A 1AA`` is the sanitiser's substitute; the ``ZZ99`` outcode is reserved
 #: by Royal Mail for "no fixed abode"/test use and can never be a real address,
 #: which makes it the right thing for tests that need two distinct postcodes.
@@ -134,8 +159,9 @@ KNOWN_PUBLIC_VALUES = {"b0046936-5a05-439e-8a89-5beab70829b7"}
 
 
 def _is_safe_email(value: str) -> bool:
-    """True for addresses in reserved documentation/testing domains."""
-    return value.lower().endswith(SAFE_EMAIL_DOMAINS)
+    """True for reserved documentation/testing domains, or a filename."""
+    lowered = value.lower()
+    return lowered.endswith(SAFE_EMAIL_DOMAINS) or lowered.endswith(FILENAME_SUFFIXES)
 
 
 def _is_safe_postcode(value: str) -> bool:

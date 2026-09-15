@@ -92,6 +92,9 @@ class TestAllowsReservedSubstitutes:
             'access_token = "synthetic.access.token"',
             'refresh_token = "synthetic-refresh-token"',
             'token = "not-a-real-password"',
+            # Home Assistant's retina asset naming parses as an email address.
+            'logo = "icon@2x.png"',
+            '"dark_logo@2x.png"',
         ],
     )
     def test_stays_quiet(self, line: str) -> None:
