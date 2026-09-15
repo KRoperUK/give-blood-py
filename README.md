@@ -315,3 +315,28 @@ PII.
 ## Licence
 
 MIT. Not affiliated with, endorsed by, or supported by NHS Blood and Transplant.
+
+## Releasing
+
+Releases are automated. A Conventional Commit on `main` makes
+[release-please](https://github.com/googleapis/release-please) open a release pull request; merging it
+tags the version, writes the changelog, and publishes to PyPI via
+[trusted publishing](https://docs.pypi.org/trusted-publishers/) — no API token is stored in this
+repository.
+
+One-time PyPI setup, if this is ever re-established from scratch:
+
+1. On PyPI, go to **Your projects → Publishing** (or, before the first release,
+   **Account settings → Publishing → Add a pending publisher**).
+2. Enter exactly:
+
+   | Field | Value |
+   |---|---|
+   | PyPI project name | `nhs-give-blood` |
+   | Owner | `KRoperUK` |
+   | Repository name | `give-blood-py` |
+   | Workflow name | `release-please.yml` |
+   | Environment name | `pypi` |
+
+The `pypi` GitHub environment restricts deployments to `main` and `v*` tags, so a fork or a feature
+branch cannot publish.

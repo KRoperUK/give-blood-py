@@ -37,5 +37,26 @@ jobs:
         with:
           python-version: "3.13"
       - uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1.4.1
+
+      # Belt and braces before an irreversible publish: PyPI rejects nothing
+      # after upload, and a version can never be replaced.
+      - name: Validate metadata and lock file
+        run: poetry check
+
       - run: poetry build
-      - uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Verify the artifacts render on PyPI
+        run: |
+          pipx install twine || pip install twine
+          twine check dist/*
+
+      # Trusted publishing: the job exchanges its OIDC token for a short-lived
+      # PyPI credential, so no long-lived API token is stored in this repo.
+      # Pinned to a SHA like every other action here, with Dependabot to bump it,
+      # rather than tracking the floating release/v1 branch.
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          # Fail loudly if a version is somehow already on PyPI, rather than
+          # silently doing nothing and reporting success.
+          skip-existing: false
+          verbose: true
