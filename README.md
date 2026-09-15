@@ -141,7 +141,14 @@ failover     = await client.async_get_failover()
 ### Finding somewhere to donate
 
 ```python
+addresses = await client.async_search_addresses("SW1A 1AA")
+for address in addresses:
+    print(address.one_line)
+
 response = await client.async_search_venues("SW1A 1AA", procedure_code="WB")
+if response.potential_locations:
+    # An ambiguous place name. These are display labels, not venues.
+    print("Did you mean:", ", ".join(response.potential_locations))
 for result in response.results:
     print(result.venue.display_name, result.venue_distance, result.date_of_next_session)
 
@@ -173,6 +180,7 @@ before treating an empty `results` list as an outage.
 | `async_get_failover()` | `FailoverBanner` | `is_active` means booking is down |
 | `async_get_version_check(platform, version)` | `VersionCheck` | |
 | `async_search_venues(search_criteria, …)` | `VenueSearchResponse` | Postcode or place name |
+| `async_search_addresses(postcode)` | `list[Address]` | Takes `postcode`, not `searchCriteria` |
 | `async_get_sessions_at_venue(venue_id, …)` | `list[Session]` | |
 | `async_get_session_slots(session_id, …)` | `SessionSlots` | |
 | `async_validate_token()` | `bool` | False on rejection; raises on unreachable |

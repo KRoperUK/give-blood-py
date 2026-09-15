@@ -13,6 +13,7 @@ allowed to exist, so it must not become the one place real PII hides.
 from __future__ import annotations
 
 import importlib.util
+import re
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -170,3 +171,76 @@ class TestRepoIsClean:
             for number, finding in guard.scan_file(path)
         }
         assert not findings, f"PII guard found issues in-tree: {sorted(findings)}"
+
+
+class TestLiveTestsCannotLeak:
+    """Guards on `tests/test_live.py`, which is the one module that holds real PII.
+
+    Two mistakes are easy to make there and neither is caught by the PII guard, which
+    scans committed files rather than CI output:
+
+    1. Taking a live payload as a test argument. pytest renders a test's own arguments
+       in the failure header, so the whole donor record prints on any failure. This
+       happened during development and is why the `Redacted` wrapper exists.
+    2. Calling a write method, which would book or cancel a real NHS appointment from
+       a scheduled job.
+    """
+
+    LIVE_TESTS = REPO_ROOT / "tests" / "test_live.py"
+
+    @pytest.fixture(scope="class")
+    @staticmethod
+    def source() -> str:
+        return TestLiveTestsCannotLeak.LIVE_TESTS.read_text()
+
+    def test_module_exists(self) -> None:
+        assert self.LIVE_TESTS.is_file()
+
+    def test_no_test_takes_an_unwrapped_payload(self, source: str) -> None:
+        """Payloads must arrive wrapped, so pytest prints the wrapper's repr instead."""
+        offenders = [
+            line.strip()
+            for line in source.splitlines()
+            if re.search(r"def test_\w+\(.*\b(snapshot_once|snapshot)\s*:", line)
+        ]
+        assert not offenders, (
+            "live tests must take the Redacted wrapper, not the payload — "
+            f"pytest prints test arguments on failure: {offenders}"
+        )
+
+    def test_a_redacting_wrapper_is_defined(self, source: str) -> None:
+        assert "class Redacted" in source
+        assert "__repr__" in source, "the wrapper needs a repr that reveals nothing"
+
+    @pytest.mark.parametrize(
+        "method",
+        ["async_book_appointment", "async_reschedule_appointment", "async_cancel_appointment"],
+    )
+    def test_no_write_method_is_called(self, source: str, method: str) -> None:
+        """Each name appears exactly once, in the module's own WRITE_METHODS tuple."""
+        assert len(re.findall(rf"\b{method}\b", source)) == 1, (
+            f"{method} appears more than once in the live tests — these must never change a real NHS appointment"
+        )
+
+    def test_the_workflow_never_runs_on_untrusted_events(self) -> None:
+        """A fork must not be able to reach NHSBT or the credential secrets.
+
+        Parses the `on:` block rather than grepping the file, so a comment explaining
+        *why* pull_request is absent does not fail the test that checks it is.
+        """
+        import yaml
+
+        raw = (REPO_ROOT / ".github" / "workflows" / "live-smoke.yml").read_text()
+        workflow = yaml.safe_load(raw)
+        # PyYAML reads a bare `on` key as the boolean True.
+        triggers = set(workflow.get("on") or workflow.get(True) or {})
+
+        assert "pull_request" not in triggers, "a fork PR must not run this"
+        assert "push" not in triggers, "every push would hammer a health service's API"
+        assert triggers <= {"workflow_dispatch", "schedule"}, f"unexpected triggers: {triggers}"
+        assert "github.repository == 'KRoperUK/give-blood-py'" in raw
+
+    def test_the_workflow_shortens_tracebacks(self) -> None:
+        """Defence in depth: CI logs are not covered by the PII guard."""
+        workflow = (REPO_ROOT / ".github" / "workflows" / "live-smoke.yml").read_text()
+        assert "--tb=short" in workflow

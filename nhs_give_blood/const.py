@@ -75,6 +75,7 @@ EP_APPOINTMENT_REPLACE: Final = "/api/appointments/replace"
 EP_SESSION_SLOTS: Final = "/api/appointments/{session_id}/slots"
 
 EP_VENUES: Final = "/api/venues"
+EP_ADDRESS_SEARCH: Final = "/api/address-search"
 EP_SESSIONS_AT_VENUE: Final = "/api/sessions/{venue_id}"
 EP_SESSIONS_PAR: Final = "/api/sessions/par"
 

@@ -105,7 +105,7 @@ failed refresh to a password login rather than surfacing an error.
 | Method | Path | Body |
 |---|---|---|
 | `POST` | `/api/auth/logout` | `{refreshToken}` |
-| `GET` | `/api/auth/validate` | — |
+| `GET` | `/api/auth/validate` | — (**retired**: the live service answers 404, and 500 for a POST, despite the route still being in the app bundle) |
 | `POST` | `/api/auth/change-password` | — |
 | `POST` | `/api/auth/reset/password` | — |
 | `POST` | `/api/auth/request/username` | — |
@@ -140,6 +140,10 @@ failed refresh to a password login rather than surfacing an error.
 - `awardsData` — `{registrationDate, awardState, totalCredits, totalAwards, awards[], highestAchieved}`.
 - `appointments[]` — same shape as `/api/appointments/future`.
 - `nearestPlasmaVenue` — a venue plus `venueDistance`, `dateOfNextSession`, `sessionDayCount`.
+- `venues[]` — the donor's preferred venues. **A different shape to `VenueSummary`**: the identifier
+  is `venueID` with a capital `ID` rather than `venueId`, and there are two fields found nowhere else
+  — `venPref` (a preference code) and `gridReference`. There are no `is*Supported` flags. This is why
+  it is modelled as its own type rather than aliased onto the venue model used everywhere else.
 - `showBookingCTA`, `hasPreviousDonations`, `isPlateletPlus`, `emailChangePending`,
   `referToCallCentre`, `lastDonatedVenueId`.
 - Directly identifying: `donorID`, `title`, `forenames`, `surname`, `addresses[]`, `telephones[]`,
@@ -158,7 +162,23 @@ failed refresh to a password login rather than surfacing an error.
 Note the inconsistent casing: booking payloads use `sessionID`, everything else uses `sessionId`.
 
 The slots response includes `clashingAppointments` — the donor's existing appointments in the same
-window. This is why a slot can look bookable and still be refused.
+window. This is why a slot can look bookable and still be refused. Each entry in `slots[]` looks
+like:
+
+```json
+{
+  "time": "T1730",
+  "procedureCode": "WB",
+  "procedureType": "WholeBlood",
+  "procedureDescription": "Whole Blood",
+  "lastOneAvailable": false
+}
+```
+
+`time` is the value to pass back as `sessionTime` when booking, in the same `THHMM` form as an
+appointment's `time`. A period advertising a free slot can still return an empty `slots[]` — a window
+with one free slot frequently yields none, because the slot is only offered when it is genuinely
+bookable at that moment.
 
 An appointment looks like:
 
@@ -193,13 +213,25 @@ An appointment looks like:
 | `GET` | `/api/sessions/{venueId}` | `startDate`, `endDate`, `procedureCode`, `includeFullyBookedSessions` |
 | `GET` | `/api/sessions/par` | Predictive appointment request sessions |
 | `GET` | `/api/locations` | — |
-| `GET` | `/api/address-search` | Parameter name not yet identified; `searchCriteria` returns 400 |
+| `GET` | `/api/address-search` | `postcode` |
 
 `searchCriteria` takes a postcode or a place name. `/api/venues` returns
 `{status, results[], potentialLocations, errorCode, errorInformation, startDateOffsetMonths,
 maxSearchDistance, furthestVenueDistance, nearestPlasmaVenue, count}`. A **200 with a non-empty
 `errorCode`** is the normal "no sessions in range" answer — an empty `results` list alone does not
 distinguish that from an outage.
+
+`potentialLocations` is a list of **plain strings**, not objects — display labels for a place name
+that matched several towns, e.g. `"NEWPORT (GWENT)"`, `"NEWPORT (ISLE OF WIGHT)"`. The app renders
+them into a disambiguation list verbatim. Typing them as objects (as this library first did) makes an
+ambiguous search raise a `ValidationError` instead of returning the list the API sent.
+
+`/api/address-search` takes `postcode` — **not** the `searchCriteria` its sibling endpoints use.
+Passing `searchCriteria` returns `400 SHOULD_NOT_BE_EMPTY` naming a property called `Postcode`, which
+is how the parameter was identified. The response is a bare JSON array with no envelope, and each
+entry has the same shape as the addresses elsewhere in the API (`type`, `companyName`, `lines`,
+`postcode`, `latitude`, `longitude`). The app uses it to turn a postcode into a selectable address
+during sign-up.
 
 Sessions returned by `/api/sessions/{venueId}` have `venue: null`; the caller already knows the venue.
 
@@ -282,8 +314,29 @@ buildSessionStatusCombo = ({sessionStatus, appointmentStatus, appointmentAvailab
   sessionStatus + appointmentStatus + appointmentAvailability + bookingFlag
 ```
 
-The lookup table (`sessionStatusCombos`) is delivered as app configuration and was not captured, so
-this library exposes the raw key as `Session.status_combo` rather than guessing at meanings.
+The lookup table (`sessionStatusCombos`) is **delivered at runtime through Firebase Remote Config**,
+not by an API route, so this library exposes the raw key as `Session.status_combo` rather than
+guessing at meanings.
+
+That conclusion is worth recording in full, because it closes off the obvious next avenue:
+
+- The literal `sessionStatusCombos` appears **exactly once** in `assets/index.android.bundle`, in the
+  Hermes string table — the property access itself. No key/value table is embedded anywhere in the
+  bundle, so it cannot be read out of the app.
+- The bundle does contain `fetchAndActivate` and `remoteConfig`, which are the Firebase Remote Config
+  JS SDK. The table is fetched from Firebase at startup with the app's own Firebase project
+  credentials, which the API does not expose and this library cannot supply.
+- Sixteen plausible API routes were probed and **all return 404**: `/api/config`,
+  `/api/app/config`, `/api/app/config/{platform}/{version}`, `/api/app/configuration/{platform}/{version}`,
+  `/api/configuration`, `/api/app/init`, `/api/app/bootstrap`, `/api/app/settings`, `/api/app/startup`,
+  `/api/session-status-combos`, `/api/app/session-status-combos`, `/api/features/config`,
+  `/api/features/app`, `/api/app-config`, `/api/config/app`, and `/api/features/sessionStatusCombos`.
+- `/api/features` returns only the six booleans listed above, with no combo table under any parameter
+  combination tried.
+
+So decoding these codes needs either the Firebase Remote Config payload or enough observed sessions to
+correlate codes against what the app displays. Until then the raw codes stay raw, deliberately: a
+mapping derived from a single observation would be worse than none, because consumers build on it.
 
 ## Other services the app talks to
 
@@ -292,6 +345,19 @@ Not part of this library, but present in the bundle and worth knowing about:
 - **Queue-it** (`libqueueit_app.so`, `libqueueit_library.so`) — a virtual waiting room in front of
   booking during high demand. This client does not implement it; if NHSBT enables queueing, booking
   calls may be redirected.
+
+  **What a queued response looks like could not be observed.** Queueing was not active during any
+  capture, and it only applies during genuine high demand — after a public appeal — so it cannot be
+  produced on demand. The candidates, none confirmed: an HTTP 302 to a `queue-it.net` host, a 403 with
+  a distinctive body, or a specific `errorCode` in the standard validation envelope. Anything named
+  here would be a guess, and a wrong classifier is worse than none around booking.
+
+  Read paths are almost certainly unaffected — NHSBT fronts the booking journey, not account reads,
+  and this library's reads all worked during a period when nothing was queued. The exposure is the
+  write paths: a queued response would currently surface as `GiveBloodBookingError`, i.e. "the API
+  refused this booking" when the truth is "you are in a queue". That is misleading in exactly the case
+  where a caller might retry. Mitigations already in place: writes are never retried on ambiguous
+  failure, and `async_get_failover()` exposes NHSBT's own outage banner.
 - **Azure Application Insights** — client telemetry.
 - **Firebase** — analytics, Crashlytics, cloud messaging.
 - **Google Maps Geocoding** — address lookup, with its own API key.

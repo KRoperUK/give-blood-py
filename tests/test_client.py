@@ -21,6 +21,7 @@ from nhs_give_blood import (
 )
 from nhs_give_blood.const import (
     EP_ACCOUNT_DETAILS,
+    EP_ADDRESS_SEARCH,
     EP_APPOINTMENT_BOOK,
     EP_APPOINTMENTS_FUTURE,
     EP_AWARDS,
@@ -29,7 +30,6 @@ from nhs_give_blood.const import (
     EP_FEATURES_FAILOVER,
     EP_MESSAGES,
     EP_REFRESH,
-    EP_VALIDATE,
     EP_VENUES,
 )
 
@@ -173,16 +173,41 @@ class TestReadEndpoints:
         sessions = await authed_client.async_get_sessions_at_venue("TSTV1")
         assert sessions and sessions[0].session_id
 
+    async def test_address_search_sends_postcode_not_search_criteria(
+        self, authed_client: GiveBloodClient, aresponses: ResponsesMockServer
+    ) -> None:
+        """The sibling endpoints take ``searchCriteria``; this one takes ``postcode``."""
+        captured: dict[str, str] = {}
+
+        async def handler(request: aiohttp.web.Request) -> aiohttp.web.Response:
+            captured.update(request.query)
+            return json_response(load_fixture("address_search"))
+
+        aresponses.add(TEST_HOST, EP_ADDRESS_SEARCH, "GET", handler, match_querystring=False)
+        addresses = await authed_client.async_search_addresses("SW1A 1AA")
+
+        assert captured == {"postcode": "SW1A 1AA"}
+        assert len(addresses) == 2
+        assert addresses[0].postcode == "SW1A 1AA"
+        assert addresses[0].one_line == "1 Example Street, Testville, SW1A 1AA"
+
+    async def test_address_search_tolerates_a_non_list_body(
+        self, authed_client: GiveBloodClient, aresponses: ResponsesMockServer
+    ) -> None:
+        aresponses.add(TEST_HOST, EP_ADDRESS_SEARCH, "GET", json_response({"unexpected": True}))
+        assert await authed_client.async_search_addresses("SW1A 1AA") == []
+
     async def test_validate_returns_false_on_rejection_not_an_exception(
         self, authed_client: GiveBloodClient, aresponses: ResponsesMockServer
     ) -> None:
-        aresponses.add(TEST_HOST, EP_VALIDATE, "GET", json_response({"code": "INVALID"}, status=403))
+        """Validation goes through the appointments endpoint; /api/auth/validate is retired."""
+        aresponses.add(TEST_HOST, EP_APPOINTMENTS_FUTURE, "GET", json_response({"code": "INVALID"}, status=403))
         assert await authed_client.async_validate_token() is False
 
     async def test_validate_returns_true_when_accepted(
         self, authed_client: GiveBloodClient, aresponses: ResponsesMockServer
     ) -> None:
-        aresponses.add(TEST_HOST, EP_VALIDATE, "GET", json_response({}))
+        aresponses.add(TEST_HOST, EP_APPOINTMENTS_FUTURE, "GET", json_response([]))
         assert await authed_client.async_validate_token() is True
 
 
