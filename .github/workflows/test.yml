@@ -125,8 +125,12 @@ jobs:
       - uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1.4.1
       - run: poetry install --no-interaction
       # pre-push hooks (mypy, pytest) have their own jobs; running them here too
-      # would double the CI time for no extra signal.
+      # would double the CI time for no extra signal. `no-commit-to-branch` is a
+      # local guard against committing straight to main — CI *is* checked out on
+      # main, so it always fails here and is skipped rather than removed.
       - run: poetry run pre-commit run --all-files --show-diff-on-failure --hook-stage pre-commit
+        env:
+          SKIP: no-commit-to-branch
 
   test:
     needs: changes
