@@ -3,7 +3,7 @@
 # discovery, dependency groups) live under `[tool.poetry]`.
 [project]
 name = "nhs-give-blood"
-version = "0.1.0"
+version = "0.2.0"
 description = "Async Python client for the NHS Give Blood (NHSBT) donor app API"
 authors = [{ name = "Kieran Roper" }]
 license = "MIT"
