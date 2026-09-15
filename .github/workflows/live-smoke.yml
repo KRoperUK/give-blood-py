@@ -1,0 +1,79 @@
+name: Live smoke test
+
+# Gated live validation against a real NHS Give Blood account.
+#
+# Every other test mocks HTTP with aresponses, so the suite would stay green through a
+# complete change in NHSBT's wire format. This is the only thing that would notice
+# before a user did, which matters for a client of a private, undocumented API.
+#
+# Never runs on push or pull_request: that would expose the credential secrets to any
+# fork, and a contributor's PR has no business calling a health service's API. Skips
+# cleanly without the secrets, so an unconfigured checkout or fork sees a green no-op.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Weekly, early Monday. Logins are deliberately never retried by this library —
+    # a retried login is a second password attempt against an account lockout policy —
+    # so an infrequent cadence is both sufficient and the polite choice.
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-smoke
+  cancel-in-progress: true
+
+jobs:
+  live:
+    # Guards against a fork running this even if secrets were somehow present.
+    if: github.repository == 'KRoperUK/give-blood-py'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - uses: snok/install-poetry@a783c322200f0519c7926aa6faa857c4e23e9263 # v1.4.2
+
+      - run: poetry install --no-interaction
+
+      - name: Run the live smoke tests (read-only)
+        # `-m live` overrides the default `-m 'not live'`; `-o addopts=` clears it
+        # entirely so the marker filter is the only selection in play.
+        #
+        # `--tb=short` is deliberate defence in depth. The fixtures wrap live payloads
+        # in a redacting holder so a failure cannot print donor data, and a test
+        # asserts that; a short traceback removes the argument header as well, because
+        # CI logs are not covered by the repository's PII guard.
+        env:
+          NHS_GIVE_BLOOD_EMAIL: ${{ secrets.NHS_GIVE_BLOOD_EMAIL }}
+          NHS_GIVE_BLOOD_PASSWORD: ${{ secrets.NHS_GIVE_BLOOD_PASSWORD }}
+        run: poetry run pytest tests/test_live.py -m live -o addopts= --tb=short -v
+
+      - name: Explain a failure
+        if: failure()
+        run: |
+          {
+            echo "### Live smoke test failed"
+            echo
+            echo "The mocked test suite is green, so this is most likely a change on"
+            echo "NHSBT's side rather than a regression here. Likely causes, roughly"
+            echo "in order:"
+            echo
+            echo "- **Schema drift.** A \`test_...no_unmodelled_fields\` failure means the"
+            echo "  API *added* a field. Nothing is broken — the models use"
+            echo "  \`extra=\"allow\"\` — but it is worth modelling."
+            echo "- **A retired endpoint.** \`/api/auth/validate\` already went this way."
+            echo "- **Client version rejected.** If \`test_version_check\` failed, NHSBT"
+            echo "  now requires a newer app version and \`DEFAULT_CLIENT_VERSION\` needs"
+            echo "  bumping."
+            echo "- **Credentials.** A changed password, or a locked account."
+            echo
+            echo "Tracebacks are shortened and payloads redacted, so read the assertion"
+            echo "message rather than expecting to see the response."
+          } >> "$GITHUB_STEP_SUMMARY"
