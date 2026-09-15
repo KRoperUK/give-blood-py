@@ -8,6 +8,13 @@ on:
 permissions:
   contents: read
 
+# release-please mutates a single long-lived branch and ref per release. Two runs
+# overlapping race on it, and one fails with "Error updating ref". Queue rather
+# than cancel: cancelling mid-run can leave that branch half-written.
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
