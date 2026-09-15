@@ -3,6 +3,13 @@
 This file is maintained by [release-please](https://github.com/googleapis/release-please) from
 Conventional Commit messages. Do not edit it by hand.
 
+## [0.2.0](https://github.com/KRoperUK/give-blood-py/compare/v0.1.0...v0.2.0) (2026-09-15)
+
+
+### Features
+
+* async Python client for the NHS Give Blood donor API ([322fd24](https://github.com/KRoperUK/give-blood-py/commit/322fd243636a3a321ad6ceb0d05ad32e5b47f054))
+
 ## 0.1.0 (unreleased)
 
 Initial release.
