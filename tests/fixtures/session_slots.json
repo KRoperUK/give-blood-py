@@ -1,0 +1,19 @@
+{
+  "slots": [
+    {
+      "time": "T1545",
+      "procedureCode": "WB",
+      "procedureType": "WholeBlood",
+      "procedureDescription": "Whole Blood",
+      "lastOneAvailable": false
+    },
+    {
+      "time": "T1730",
+      "procedureCode": "WB",
+      "procedureType": "WholeBlood",
+      "procedureDescription": "Whole Blood",
+      "lastOneAvailable": true
+    }
+  ],
+  "clashingAppointments": []
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "type": "R",
+    "companyName": null,
+    "lines": [
+      "1 Example Street",
+      "Testville"
+    ],
+    "postcode": "SW1A 1AA",
+    "latitude": "51.5",
+    "longitude": "-0.12"
+  },
+  {
+    "type": "R",
+    "companyName": "Example House",
+    "lines": [
+      "2 Example Street",
+      "Testville"
+    ],
+    "postcode": "SW1A 1AA",
+    "latitude": "51.501",
+    "longitude": "-0.121"
+  }
+]

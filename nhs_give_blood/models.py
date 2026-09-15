@@ -46,9 +46,11 @@ __all__ = [
     "MessageBundle",
     "NearestVenue",
     "Period",
+    "PreferredVenue",
     "Serology",
     "Session",
     "SessionSlots",
+    "Slot",
     "VenueSearchResponse",
     "VenueSearchResult",
     "VenueSummary",
@@ -142,6 +144,11 @@ ApiFloat = Annotated[float | None, BeforeValidator(_coerce_float)]
 ApiInt = Annotated[int | None, BeforeValidator(_coerce_int)]
 ApiStrList = Annotated[list[str], BeforeValidator(_coerce_list)]
 
+#: ``Slot.time`` is a wire field named after the clock type, so the name ``time``
+#: is shadowed inside that class body. Alias it to keep the accessor's return
+#: annotation resolvable.
+_Clock = time
+
 
 class _Base(BaseModel):
     """Shared config: alias population plus forward-compatible extras."""
@@ -194,6 +201,28 @@ class VenueSummary(_Base):
         if self.internal_location and self.internal_location not in name:
             return f"{name} ({self.internal_location})"
         return name
+
+
+class PreferredVenue(_Base):
+    """A venue on the donor's account payload (``accountDetails.venues``).
+
+    Deliberately not :class:`VenueSummary`. The wire shape differs in ways that
+    matter: the identifier is ``venueID`` with a capital ``ID`` rather than
+    ``venueId``, it carries ``venPref`` and ``gridReference``, and it has none of
+    the ``is*Supported`` flags. Forcing it into ``VenueSummary`` would mean
+    aliasing the identifier and silently inventing the missing fields.
+    """
+
+    venue_id: str | None = Field(default=None, alias="venueID")
+    ven_pref: str | None = Field(default=None, alias="venPref")
+    venue_name: str | None = Field(default=None, alias="venueName")
+    external_location: str | None = Field(default=None, alias="externalLocation")
+    internal_location: str | None = Field(default=None, alias="internalLocation")
+    address: Address | None = None
+    grid_reference: str | None = Field(default=None, alias="gridReference")
+    latitude: ApiFloat = None
+    longitude: ApiFloat = None
+    notes: ApiStrList = Field(default_factory=list)
 
 
 class Period(_Base):
@@ -457,10 +486,34 @@ class AccountDetails(_Base):
     nearest_plasma_venue: NearestVenue | None = Field(default=None, alias="nearestPlasmaVenue")
     registration_venue: NearestVenue | None = Field(default=None, alias="registrationVenue")
 
+    #: Donation-intent fields, populated for donors who have registered an intent to
+    #: give a specific component. All three are null for an ordinary whole-blood or
+    #: apheresis donor, which is why they are typed permissively.
+    donation_intent_type: str | None = Field(default=None, alias="donationIntentType")
+    donation_intent_code: str | None = Field(default=None, alias="donationIntentCode")
+    donation_intent_description: str | None = Field(default=None, alias="donationIntentDescription")
+    registration_intent: str | None = Field(default=None, alias="registrationIntent")
+
+    #: Single-letter operational flags. NHSBT publishes no mapping for these; the
+    #: values seen are all "N", so they are passed through rather than guessed at.
+    #: See https://github.com/KRoperUK/give-blood-py/issues/15
+    new_or_return: str | None = Field(default=None, alias="newOrReturn")
+    print_dhc: str | None = Field(default=None, alias="printDHC")
+    check_venue: str | None = Field(default=None, alias="checkVenue")
+    priority_p: str | None = Field(default=None, alias="priorityP")
+    priority_b: str | None = Field(default=None, alias="priorityB")
+
+    #: An internal diagnostic echo, null in every response observed.
+    response_from_api: Any | None = Field(default=None, alias="responseFromApi")
+    #: A session the API suggests booking. Null for every account observed so far, so
+    #: the shape is unknown and it stays untyped deliberately rather than guessed.
+    #: See https://github.com/KRoperUK/give-blood-py/issues/16
+    suggested_session: Any | None = Field(default=None, alias="suggestedSession")
+
     addresses: Annotated[list[Address], BeforeValidator(_coerce_list)] = Field(default_factory=list)
     telephones: Annotated[list[Telephone], BeforeValidator(_coerce_list)] = Field(default_factory=list)
     emails: Annotated[list[Email], BeforeValidator(_coerce_list)] = Field(default_factory=list)
-    venues: Annotated[list[dict[str, Any]], BeforeValidator(_coerce_list)] = Field(default_factory=list)
+    venues: Annotated[list[PreferredVenue], BeforeValidator(_coerce_list)] = Field(default_factory=list)
     language: str | None = None
     correspondence: str | None = None
 
@@ -632,7 +685,10 @@ class VenueSearchResponse(_Base):
 
     status: int | None = None
     results: Annotated[list[VenueSearchResult], BeforeValidator(_coerce_list)] = Field(default_factory=list)
-    potential_locations: list[dict[str, Any]] | None = Field(default=None, alias="potentialLocations")
+    #: Display labels for an ambiguous search, e.g. a town name matching several
+    #: places ("NEWPORT (GWENT)", "NEWPORT (ISLE OF WIGHT)"). Plain strings, not
+    #: objects — the app renders them into a disambiguation list verbatim.
+    potential_locations: list[str] | None = Field(default=None, alias="potentialLocations")
     error_code: str | None = Field(default=None, alias="errorCode")
     error_information: str | None = Field(default=None, alias="errorInformation")
     start_date_offset_months: int | None = Field(default=None, alias="startDateOffsetMonths")
@@ -642,6 +698,25 @@ class VenueSearchResponse(_Base):
     count: int | None = None
 
 
+class Slot(_Base):
+    """One bookable slot from ``/api/appointments/{sessionId}/slots``.
+
+    ``time`` is the value to pass back as ``sessionTime`` when booking, in the
+    ``THHMM`` form appointments use.
+    """
+
+    time: str | None = None
+    procedure_code: str | None = Field(default=None, alias="procedureCode")
+    procedure_type: str | None = Field(default=None, alias="procedureType")
+    procedure_description: str | None = Field(default=None, alias="procedureDescription")
+    last_one_available: bool = Field(default=False, alias="lastOneAvailable")
+
+    @property
+    def starts_at(self) -> _Clock | None:
+        """Slot start as a ``time``, or ``None`` if the wire value is malformed."""
+        return parse_wire_time(self.time)
+
+
 class SessionSlots(_Base):
     """``/api/appointments/{sessionId}/slots``.
 
@@ -649,7 +724,7 @@ class SessionSlots(_Base):
     the donor already has something in the same window.
     """
 
-    slots: Annotated[list[dict[str, Any]], BeforeValidator(_coerce_list)] = Field(default_factory=list)
+    slots: Annotated[list[Slot], BeforeValidator(_coerce_list)] = Field(default_factory=list)
     clashing_appointments: Annotated[list[Appointment], BeforeValidator(_coerce_list)] = Field(
         default_factory=list, alias="clashingAppointments"
     )

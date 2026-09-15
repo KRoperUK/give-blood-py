@@ -23,6 +23,7 @@ from .const import (
     DEFAULT_RETRY_MAX_DELAY,
     DEFAULT_TIMEOUT,
     EP_ACCOUNT_DETAILS,
+    EP_ADDRESS_SEARCH,
     EP_APPOINTMENT,
     EP_APPOINTMENT_BOOK,
     EP_APPOINTMENT_REPLACE,
@@ -34,7 +35,6 @@ from .const import (
     EP_MESSAGES,
     EP_SESSION_SLOTS,
     EP_SESSIONS_AT_VENUE,
-    EP_VALIDATE,
     EP_VENUES,
     EP_VERSION_CHECK,
     PROCEDURE_CODE_WHOLE_BLOOD,
@@ -52,6 +52,7 @@ from .exceptions import (
 )
 from .models import (
     AccountDetails,
+    Address,
     Appointment,
     AwardsData,
     DonationHistory,
@@ -428,16 +429,42 @@ class GiveBloodClient:
         return VersionCheck.model_validate(await self._request("GET", path))
 
     async def async_validate_token(self) -> bool:
-        """Check the current access token server-side.
+        """Check whether the held access token is accepted by the API.
 
-        Returns False rather than raising when the token is simply rejected;
-        connection failures still raise, because "unreachable" is not "invalid".
+        Implemented against ``/api/appointments/future`` rather than
+        ``/api/auth/validate``. The latter is in the app's route table but the live
+        service answers it with HTTP 404 (and 500 for a POST), so it appears to be
+        retired — see ``docs/api-reference.md``. The appointments endpoint is the
+        cheapest strictly-authenticated read available: it needs no parameters and
+        returns a short list, often empty.
+
+        Returns False when the token is rejected. Connection failures still raise,
+        because "unreachable" is not "invalid" and a caller must be able to tell them
+        apart.
         """
         try:
-            await self._request("GET", EP_VALIDATE)
+            await self._request("GET", EP_APPOINTMENTS_FUTURE)
         except GiveBloodAuthError:
             return False
         return True
+
+    async def async_search_addresses(self, postcode: str) -> list[Address]:
+        """Look up addresses for a postcode.
+
+        The query parameter is ``postcode``, **not** the ``searchCriteria`` the
+        venue and session endpoints take — passing ``searchCriteria`` here is
+        answered with ``400 SHOULD_NOT_BE_EMPTY`` on a property named
+        ``Postcode``. The response is a bare JSON array with no envelope, and
+        each entry has the same shape as :class:`Address`.
+
+        Used by the app to turn a postcode into a selectable address during
+        sign-up, so the list is often empty for a valid but unresolvable
+        postcode.
+        """
+        body = await self._request("GET", EP_ADDRESS_SEARCH, params={"postcode": postcode})
+        if not isinstance(body, list):
+            return []
+        return [Address.model_validate(item) for item in body]
 
     async def async_search_venues(
         self,

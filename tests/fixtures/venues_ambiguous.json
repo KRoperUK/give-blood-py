@@ -1,0 +1,17 @@
+{
+  "status": 1,
+  "results": [],
+  "potentialLocations": [
+    "TESTVILLE ()",
+    "TESTVILLE (NORTH, EXAMPLE COUNTY)",
+    "TESTVILLE (SOUTH, EXAMPLE COUNTY)",
+    "TESTVILLE (UPON EXAMPLE)"
+  ],
+  "errorCode": "",
+  "errorInformation": "",
+  "startDateOffsetMonths": 4,
+  "maxSearchDistance": 20.0,
+  "furthestVenueDistance": null,
+  "nearestPlasmaVenue": null,
+  "count": 0
+}

@@ -11,6 +11,9 @@ from nhs_give_blood import (
     AwardsData,
     DonationHistory,
     MessageBundle,
+    PreferredVenue,
+    SessionSlots,
+    Slot,
     VenueSearchResponse,
     parse_api_datetime,
     parse_wire_time,
@@ -180,6 +183,28 @@ class TestSessionAndPeriod:
         assert period.closes_at == time(15, 0)
 
 
+class TestSlots:
+    """The bookable-slot payload, which callers read to pick a time."""
+
+    def test_parses_capture(self) -> None:
+        slots = SessionSlots.model_validate(load_fixture("session_slots"))
+        assert len(slots.slots) == 2
+        assert slots.slots[0].procedure_code == "WB"
+        assert slots.clashing_appointments == []
+
+    def test_slot_clock_accessor_uses_the_appointment_form(self) -> None:
+        """Slot times are ``THHMM``, the same form ``async_book_appointment`` takes."""
+        slot = Slot.model_validate({"time": "T1730"})
+        assert slot.starts_at == time(17, 30)
+
+    def test_last_one_available_flag_is_preserved(self) -> None:
+        slots = SessionSlots.model_validate(load_fixture("session_slots"))
+        assert [s.last_one_available for s in slots.slots] == [False, True]
+
+    def test_missing_slots_key_is_not_fatal(self) -> None:
+        assert SessionSlots.model_validate({}).slots == []
+
+
 class TestVenueSummary:
     """Display naming and coordinate coercion."""
 
@@ -207,6 +232,28 @@ class TestVenueSummary:
         )
         assert venue.address is not None
         assert venue.address.one_line == "1 Example Street, Testville, SW1A 1AA"
+
+
+class TestPreferredVenue:
+    """The account payload's venue list has a different wire shape to VenueSummary."""
+
+    def test_parses_the_account_capture(self) -> None:
+        account = AccountDetails.model_validate(load_fixture("account_details"))
+        assert account.venues
+        venue = account.venues[0]
+        assert isinstance(venue, PreferredVenue)
+        assert venue.venue_id == "TSTV1"
+        assert venue.grid_reference == "TQ000000"
+
+    def test_the_identifier_is_capital_id_on_the_wire(self) -> None:
+        """``venueID`` here, ``venueId`` everywhere else — the reason it needs its own model."""
+        venue = PreferredVenue.model_validate({"venueID": "TSTV1", "venueId": "IGNORED"})
+        assert venue.venue_id == "TSTV1"
+
+    def test_unknown_fields_are_retained_not_rejected(self) -> None:
+        venue = PreferredVenue.model_validate({"venueID": "TSTV1", "someBrandNewField": 1})
+        assert venue.model_extra is not None
+        assert venue.model_extra["someBrandNewField"] == 1
 
 
 class TestAwards:
@@ -319,3 +366,22 @@ class TestVenueSearch:
     def test_null_next_session_sentinel_is_none(self) -> None:
         response = VenueSearchResponse.model_validate({"results": [{"dateOfNextSession": "0001-01-01T00:00:00"}]})
         assert response.results[0].date_of_next_session is None
+
+    def test_potential_locations_are_plain_strings(self) -> None:
+        """An ambiguous place name returns display labels, not objects.
+
+        Typing these as objects (as this model originally did) makes an
+        ambiguous search raise a pydantic ``ValidationError`` instead of
+        returning the disambiguation list the API sent.
+        """
+        response = VenueSearchResponse.model_validate(load_fixture("venues_ambiguous"))
+        assert not response.results
+        assert response.potential_locations == [
+            "TESTVILLE ()",
+            "TESTVILLE (NORTH, EXAMPLE COUNTY)",
+            "TESTVILLE (SOUTH, EXAMPLE COUNTY)",
+            "TESTVILLE (UPON EXAMPLE)",
+        ]
+
+    def test_absent_potential_locations_stay_none(self) -> None:
+        assert VenueSearchResponse.model_validate({"results": []}).potential_locations is None
