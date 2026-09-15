@@ -1,29 +1,53 @@
 version: 2
 updates:
-  # Action versions are pinned to commit SHAs, so Dependabot is the only
-  # practical way to learn that a pinned SHA has a newer release.
+  # Grouped so a batch of routine bumps is one review, not eight. Ungrouped
+  # Dependabot on a repo with pinned action SHAs produces a PR per action per
+  # release, which trains you to merge without reading.
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+      time: "07:00"
+      timezone: Europe/London
+    open-pull-requests-limit: 3
     commit-message:
-      prefix: "chore"
+      prefix: chore
       include: scope
     labels:
       - dependencies
       - github-actions
+    groups:
+      # Every action here is pinned to a SHA, so a bump is unreviewable without
+      # reading the release notes anyway. One PR keeps that a single task.
+      github-actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: pip
     directory: "/"
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+      time: "07:00"
+      timezone: Europe/London
+    open-pull-requests-limit: 3
     commit-message:
-      prefix: "chore"
+      prefix: chore
       include: scope
     labels:
       - dependencies
       - python
+    groups:
+      # Runtime dependencies are what reaches users, so they get their own PR
+      # and their own review.
+      runtime:
+        dependency-type: production
+        patterns:
+          - "*"
+      # Lint and test tooling. Grouped because a ruff or mypy bump usually needs
+      # the same "run it and fix the fallout" pass regardless of which one moved.
+      dev-tooling:
+        dependency-type: development
+        patterns:
+          - "*"

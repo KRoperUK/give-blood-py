@@ -133,7 +133,7 @@ account      = await client.async_get_account_details()
 appointments = await client.async_get_future_appointments()
 history      = await client.async_get_donation_history()
 awards       = await client.async_get_awards()
-messages     = await clientient.async_get_messages()
+messages     = await client.async_get_messages()
 features     = await client.async_get_feature_flags(account.blood_group)
 failover     = await client.async_get_failover()
 ```

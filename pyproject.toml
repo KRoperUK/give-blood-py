@@ -51,18 +51,23 @@ packages = [{ include = "nhs_give_blood" }]
 # vulnerability (GHSA, dev scope) with no fix in the 8.x series.
 pytest = ">=9.0.3,<10.0.0"
 pytest-asyncio = "^1.0.0"
-pytest-cov = "^6.0.0"
+pytest-cov = "^7.0.0"
 aresponses = "^3.0.0"
-ruff = "==0.15.21"
-mypy = "^1.0.0"
+ruff = "==0.16.7"
+mypy = "^2.0.0"
 bandit = "^1.8.0"
 detect-secrets = "^1.5.0"
-pre-commit = "^3.6.0"
+pre-commit = "^4.0.0"
 python-dotenv = "^1.2.1"
 
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+# ruff 0.16 formats Python code blocks inside Markdown. Documentation examples
+# here use hand-aligned assignment blocks and elided bodies for readability, which
+# the formatter undoes, so Markdown is excluded. Python files are unaffected.
+extend-exclude = ["*.md"]
+
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP", "B", "SIM", "S"]
