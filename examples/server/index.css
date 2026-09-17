@@ -163,13 +163,50 @@ button:disabled {
   gap: 0.4rem;
 }
 
-select {
-  font: inherit;
-  padding: 0.2rem 0.4rem;
+.centres-field {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.centres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.centres .label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.55;
+}
+
+.centres button {
+  font-size: 0.78rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 1rem;
   border: 1px solid var(--line);
-  border-radius: 0.4rem;
   background: transparent;
-  color: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.centres .action {
+  opacity: 0.6;
+}
+
+.centres .action[aria-pressed="true"],
+.centres .centre-toggle[aria-pressed="true"] {
+  opacity: 1;
+  background: var(--wash);
+}
+
+/* A switched-off centre is legible at a glance rather than merely unhighlighted. */
+.centres .centre-toggle[aria-pressed="false"] {
+  opacity: 0.45;
+  text-decoration: line-through;
 }
 
 /* --- calendar ----------------------------------------------------------- */

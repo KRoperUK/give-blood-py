@@ -75,6 +75,7 @@ ASSETS: dict[str, str] = {
     "index.html": "text/html",
     "index.css": "text/css",
     "index.js": "text/javascript",
+    "format.js": "text/javascript",
 }
 
 DEFAULT_HOST = "127.0.0.1"

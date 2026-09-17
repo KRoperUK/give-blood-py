@@ -2,9 +2,18 @@
 // donor's centres, with the API's bookability gate applied client-side so the
 // filter can be toggled without another round trip.
 //
-// All formatting and escaping happens here — the API returns plain data.
+// Dates and times are rendered through format.js, which respects the browser's
+// locale and falls back to the UK.
+
+import { createFormatters, resolveLocale } from "./format.js";
 
 const BOOKING_URL = "https://my.blood.co.uk/";
+
+const formats = createFormatters(resolveLocale({
+  search: location.search,
+  languages: navigator.languages ?? [],
+  language: navigator.language ?? "",
+}));
 
 const node = (id) => document.getElementById(id);
 
@@ -20,16 +29,6 @@ const escapeHtml = (value) => {
   })[char]);
 };
 
-const formatDay = (iso) => iso
-  ? new Date(iso).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })
-  : null;
-
-const formatWhen = (iso) => iso
-  ? new Date(iso).toLocaleString(undefined, {
-    weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-  })
-  : null;
-
 // Local calendar dates. toISOString() would shift across midnight in any negative
 // offset, which would put the wrong day on the grid.
 const isoDate = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}` +
@@ -39,7 +38,10 @@ const slotKey = (sessionId, date, start, end) => `${sessionId}:${date}:${start}:
 
 const state = {
   cursor: new Date(),
-  centre: "all",
+  //: Centres the donor has switched off, by venue id. Held as the *hidden* set so
+  //: that a centre appearing later — a new donation adds one — shows up by
+  //: default rather than silently missing from the calendar.
+  hidden: new Set(),
   onlyBookable: true,
   calendar: null,
   selection: null,
@@ -58,10 +60,16 @@ function setToast(message) {
 // --- filtering ------------------------------------------------------------
 
 function sessionVisible(session) {
-  if (state.onlyBookable && !session.bookable) return false;
-  if (state.centre === "all") return true;
-  if (state.centre === "preferred") return session.source.includes("preferred");
-  return session.venue_id === state.centre;
+  if (state.hidden.has(session.venue_id)) return false;
+  return !state.onlyBookable || session.bookable;
+}
+
+function centres() {
+  return state.calendar?.centres ?? [];
+}
+
+function visibleCentres() {
+  return centres().filter((centre) => !state.hidden.has(centre.venue_id));
 }
 
 function gateNote() {
@@ -72,10 +80,11 @@ function gateNote() {
   const hidden = total - shown;
 
   const parts = [];
-  if (calendar.gate.earliest) parts.push(`earliest bookable ${formatDay(calendar.gate.earliest)}`);
+  if (calendar.gate.earliest) parts.push(`earliest bookable ${formats.formatDate(calendar.gate.earliest)}`);
   if (calendar.gate.booked_days.length) parts.push(`${calendar.gate.booked_days.length} day(s) already booked`);
-  parts.push(`searching to ${formatDay(calendar.limit)}`);
-  parts.push(`${shown} of ${total} session(s)` + (hidden ? ` — ${hidden} hidden by the filter` : ""));
+  parts.push(`searching to ${formats.formatDate(calendar.limit)}`);
+  if (state.hidden.size) parts.push(`${visibleCentres().length} of ${centres().length} centre(s)`);
+  parts.push(`${shown} of ${total} session(s)` + (hidden ? ` — ${hidden} hidden` : ""));
   if (calendar.degraded.length) parts.push(`${calendar.degraded.length} centre(s) failed`);
   return parts.join(" · ");
 }
@@ -92,7 +101,7 @@ function renderDonor(summary) {
   const { donor, eligibility } = summary;
   const next = eligibility.next_appointment;
   const nextLine = next
-    ? `<p>Next appointment: <strong>${escapeHtml(formatWhen(next.starts_at))}</strong> &mdash; ` +
+    ? `<p>Next appointment: <strong>${escapeHtml(formats.formatDateTime(next.starts_at))}</strong> &mdash; ` +
       `${escapeHtml(next.venue_name)} (${escapeHtml(next.procedure)})</p>`
     : '<p class="muted">No appointment booked.</p>';
   const failover = summary.failover?.active
@@ -106,8 +115,8 @@ function renderDonor(summary) {
   target.innerHTML = `
     <p><strong>${escapeHtml(donor.name || "Donor")}</strong> &middot; ${escapeHtml(donor.blood_group)} &middot;
       ${escapeHtml(donor.donation_credit)} credit(s) &middot; ${escapeHtml(donor.award_state || "no award yet")}</p>
-    <p class="muted">Can donate from ${escapeHtml(formatDay(eligibility.can_donate_from))} &middot;
-      can book from ${escapeHtml(formatDay(eligibility.can_book_from))}</p>
+    <p class="muted">Can donate from ${escapeHtml(formats.formatDate(eligibility.can_donate_from))} &middot;
+      can book from ${escapeHtml(formats.formatDate(eligibility.can_book_from))}</p>
     ${nextLine}
     ${failover}
     ${degraded}`;
@@ -126,7 +135,7 @@ function renderAppointments(data) {
 
   const rows = data.appointments.map((appointment) => `
     <tr>
-      <td>${escapeHtml(formatWhen(appointment.starts_at))}</td>
+      <td>${escapeHtml(formats.formatDateTime(appointment.starts_at))}</td>
       <td>${escapeHtml(appointment.procedure)}</td>
       <td>${escapeHtml(appointment.venue_name)}</td>
       <td>${escapeHtml(appointment.status)}</td>
@@ -140,30 +149,30 @@ function renderAppointments(data) {
 }
 
 function renderToolbar() {
-  const calendar = state.calendar;
-  if (!calendar) return;
-
-  node("month-label").textContent = state.cursor.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  if (!state.calendar) return;
+  node("month-label").textContent = formats.formatMonth(state.cursor);
 
   const now = new Date();
-  node("prev-month").disabled = state.cursor.getFullYear() === now.getFullYear() && state.cursor.getMonth() === now.getMonth();
+  node("prev-month").disabled = state.cursor.getFullYear() === now.getFullYear()
+    && state.cursor.getMonth() === now.getMonth();
 
-  const options = [
-    { value: "all", label: `All centres (${calendar.centres.length})` },
-    { value: "preferred", label: "Preferred only" },
-    ...calendar.centres.map((centre) => ({ value: centre.venue_id, label: `${centre.venue_id} — ${centre.name}` })),
-  ];
-  if (!options.some((option) => option.value === state.centre)) state.centre = "all";
+  const available = centres().filter((centre) => centre);
+  const allShown = available.every((centre) => !state.hidden.has(centre.venue_id));
+  const preferredShown = available.filter((centre) => centre.source.includes("preferred"))
+    .every((centre) => !state.hidden.has(centre.venue_id));
 
-  const select = node("centre-filter");
-  const signature = options.map((option) => `${option.value}\u0000${option.label}`).join("|");
-  if (select.dataset.signature !== signature) {
-    select.innerHTML = options
-      .map((option) => `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`)
-      .join("");
-    select.dataset.signature = signature;
-  }
-  select.value = state.centre;
+  const actions = `
+    <button type="button" class="action" data-action="all" aria-pressed="${allShown}">All</button>
+    <button type="button" class="action" data-action="preferred" aria-pressed="${preferredShown}">Preferred only</button>`;
+
+  const chips = available.map((centre) => {
+    const on = !state.hidden.has(centre.venue_id);
+    return `<button type="button" class="centre-toggle" data-centre="${escapeHtml(centre.venue_id)}" ` +
+      `aria-pressed="${on}" title="${escapeHtml(centre.name)} (${escapeHtml(centre.source)})">` +
+      `${escapeHtml(centre.venue_id)}</button>`;
+  }).join("");
+
+  node("centre-filter").innerHTML = actions + chips;
   node("only-bookable").checked = state.onlyBookable;
   node("gate-note").textContent = gateNote();
 }
@@ -177,7 +186,7 @@ function renderCalendar() {
   }
   if (calendar.outside_window) {
     target.innerHTML = '<p class="muted">Nothing is searched this far ahead — this server looks as far as ' +
-      `${escapeHtml(formatDay(calendar.limit))}. Raise <span class="mono">--days</span> to go further.</p>`;
+      `${escapeHtml(formats.formatDate(calendar.limit))}. Raise <span class="mono">--days</span> to go further.</p>`;
     return;
   }
 
@@ -223,15 +232,20 @@ function renderCalendar() {
   }
 
   const totalSessions = (calendar.days || []).reduce((count, day) => count + day.sessions.length, 0);
-  // Without this the calendar just looks broken on a month where the filter hides
+  // Without this the calendar just looks broken on a month where the filters hide
   // everything, which is the normal case for the current month.
+  const reasons = [];
+  if (state.hidden.size) reasons.push("some centres are switched off");
+  if (state.onlyBookable && calendar.gate.earliest) {
+    reasons.push(`the earliest bookable day is ${escapeHtml(formats.formatDate(calendar.gate.earliest))}`);
+  }
   const notice = visible === 0 && totalSessions > 0
-    ? `<p class="muted">Nothing bookable in ${escapeHtml(state.cursor.toLocaleDateString(undefined, { month: "long" }))}. ` +
-      (calendar.gate.earliest ? `Earliest is ${escapeHtml(formatDay(calendar.gate.earliest))} — ` : "") +
-      `untick "only show what I can book" to see all ${escapeHtml(totalSessions)} session(s).</p>`
+    ? `<p class="muted">Nothing shown in ${escapeHtml(formats.formatMonth(state.cursor))}` +
+      (reasons.length ? ` — ${reasons.join(", and ")}.` : ".") +
+      ` All ${escapeHtml(totalSessions)} session(s) are there to be seen once the filters allow it.</p>`
     : "";
 
-  const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => `<span>${day}</span>`).join("");
+  const weekdays = formats.weekdayLabels().map((day) => `<span>${escapeHtml(day)}</span>`).join("");
   target.innerHTML = notice + `<div class="weekdays">${weekdays}</div><div class="grid">${cells.join("")}</div>`;
 }
 
@@ -248,10 +262,11 @@ function renderTimes(session, date, period) {
   const times = data.slots.map((slot) => `<button type="button" class="time${slot.last_one_available ? " last-one" : ""}" ` +
     `data-venue="${escapeHtml(session.venue_id)}" data-date="${escapeHtml(date)}" data-clock="${escapeHtml(slot.clock)}" ` +
     `title="${escapeHtml(slot.procedure || "")}${slot.last_one_available ? " — last one available" : ""}">` +
-    `${escapeHtml(slot.clock)}</button>`).join("");
+    `${escapeHtml(formats.formatClock(slot.time))}</button>`).join("");
 
   const clashing = data.clashing_appointments.length
-    ? `<p class="warn">Clashes with ${escapeHtml(data.clashing_appointments.map((a) => formatWhen(a.starts_at)).join(", "))}</p>`
+    ? `<p class="warn">Clashes with ` +
+      `${escapeHtml(data.clashing_appointments.map((a) => formats.formatDateTime(a.starts_at)).join(", "))}</p>`
     : "";
   return `<div class="times">${times}</div>${clashing}`;
 }
@@ -272,7 +287,7 @@ function renderDayDetail() {
   target.hidden = false;
 
   if (!sessions.length) {
-    target.innerHTML = `<h3>${escapeHtml(formatDay(selection.date))}</h3>` +
+    target.innerHTML = `<h3>${escapeHtml(formats.formatDate(selection.date))}</h3>` +
       '<p class="muted">Nothing shown here under the current filters.</p>';
     return;
   }
@@ -284,7 +299,8 @@ function renderDayDetail() {
       return `<button type="button" class="period${open ? " is-open" : ""}" ` +
         `data-session="${escapeHtml(session.session_id)}" data-date="${selection.date}" ` +
         `data-start="${escapeHtml(period.start)}" data-end="${escapeHtml(period.end)}">` +
-        `${escapeHtml(period.start)}&ndash;${escapeHtml(period.end)}${free}</button>`;
+        `${escapeHtml(formats.formatClock(period.start))}&ndash;${escapeHtml(formats.formatClock(period.end))}` +
+        `${free}</button>`;
     }).join("");
 
     const open = session.periods.find((period) =>
@@ -303,7 +319,7 @@ function renderDayDetail() {
       </div>`;
   }).join("");
 
-  target.innerHTML = `<h3>${escapeHtml(formatDay(selection.date))}</h3>${blocks}`;
+  target.innerHTML = `<h3>${escapeHtml(formats.formatDate(selection.date))}</h3>${blocks}`;
 }
 
 // --- data -----------------------------------------------------------------
@@ -346,7 +362,7 @@ async function load(refresh = false) {
     renderDonor(summary);
     renderAppointments(appointments);
     await loadCalendar(refresh);
-    updated.textContent = `updated ${new Date().toLocaleTimeString()}`;
+    updated.textContent = `updated ${formats.formatDateTime(new Date())}`;
   } catch (err) {
     updated.textContent = `refresh failed: ${err}`;
   }
@@ -358,6 +374,8 @@ function openSlot(venueId, date, clock) {
   // Opened synchronously: awaiting the clipboard first would break the user-gesture
   // requirement and get this blocked as a popup.
   window.open(BOOKING_URL, "_blank", "noopener");
+  // Deliberately not localised: this goes onto the clipboard to be matched
+  // against the booking site, so it stays an ISO date and a 24-hour clock.
   const reference = `${venueId} · ${date} · ${clock}`;
   // clipboard is undefined outside a secure context — reachable by binding the
   // server to a LAN address over plain http, so the reference is shown either way.
@@ -408,6 +426,29 @@ node("day-detail").addEventListener("click", (event) => {
   loadSlots(key, period.dataset.session, period.dataset.date, period.dataset.start, period.dataset.end);
 });
 
+node("centre-filter").addEventListener("click", (event) => {
+  const action = event.target.closest("[data-action]");
+  if (action) {
+    const mode = action.dataset.action;
+    state.hidden = new Set(centres()
+      .filter((centre) => mode === "preferred" && !centre.source.includes("preferred"))
+      .map((centre) => centre.venue_id));
+    renderToolbar();
+    renderCalendar();
+    renderDayDetail();
+    return;
+  }
+
+  const toggle = event.target.closest("[data-centre]");
+  if (!toggle) return;
+  const venueId = toggle.dataset.centre;
+  if (state.hidden.has(venueId)) state.hidden.delete(venueId);
+  else state.hidden.add(venueId);
+  renderToolbar();
+  renderCalendar();
+  renderDayDetail();
+});
+
 node("prev-month").addEventListener("click", () => shiftMonth(-1));
 node("next-month").addEventListener("click", () => shiftMonth(1));
 node("this-month").addEventListener("click", () => {
@@ -416,13 +457,6 @@ node("this-month").addEventListener("click", () => {
   loadCalendar();
 });
 node("refresh").addEventListener("click", () => load(true));
-
-node("centre-filter").addEventListener("change", (event) => {
-  state.centre = event.target.value;
-  renderToolbar();
-  renderCalendar();
-  renderDayDetail();
-});
 
 node("only-bookable").addEventListener("change", (event) => {
   state.onlyBookable = event.target.checked;

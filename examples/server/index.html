@@ -34,7 +34,10 @@
       <button id="next-month" type="button" title="Next month">&rsaquo;</button>
       <button id="this-month" type="button">Today</button>
     </div>
-    <label class="field">Centre <select id="centre-filter"></select></label>
+    <div class="field centres-field">
+      <span class="label">Centres</span>
+      <div id="centre-filter" class="centres" role="group" aria-label="Show or hide centres"></div>
+    </div>
     <label class="field check">
       <input type="checkbox" id="only-bookable" checked> Only show what I can book
     </label>
@@ -53,6 +56,6 @@
 
   <div id="day-detail" hidden></div>
 
-  <script src="/static/index.js"></script>
+  <script type="module" src="/static/index.js"></script>
 </body>
 </html>
