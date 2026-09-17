@@ -178,6 +178,12 @@ class VenueSummary(_Base):
 
     ``is_*_supported`` describes what the *venue* can collect, which is not the
     same as what is bookable on a given session.
+
+    Some nested venues — the ones under ``nearestPlasmaVenue`` and
+    ``registrationVenue`` — also send a second capability vocabulary without the
+    ``is`` prefix, and the two can contradict each other. Both are kept, since
+    picking a winner between two things the API asserts simultaneously is a
+    separate decision (see the ``*_supported`` fields below).
     """
 
     venue_id: str | None = Field(default=None, alias="venueId")
@@ -193,6 +199,17 @@ class VenueSummary(_Base):
     is_plasma_supported: bool = Field(default=False, alias="isPlasmaSupported")
     is_platelet_supported: bool = Field(default=False, alias="isPlateletSupported")
     is_donor_centre: bool = Field(default=False, alias="isDonorCentre")
+
+    #: The unprefixed capability vocabulary. On every payload observed the two
+    #: disagree — a venue named "… Plasma Donor Centre" arrives as
+    #: ``plasmaSupported: true`` alongside ``isPlasmaSupported: false`` — so
+    #: neither is silently dropped and neither is preferred. ``None`` means the
+    #: field was absent, which is deliberately distinct from ``False``: most
+    #: venues send only the ``is*`` set.
+    #: https://github.com/KRoperUK/give-blood-py/issues/23
+    whole_blood_supported: bool | None = Field(default=None, alias="wholeBloodSupported")
+    plasma_supported: bool | None = Field(default=None, alias="plasmaSupported")
+    platelet_supported: bool | None = Field(default=None, alias="plateletSupported")
 
     @property
     def display_name(self) -> str:
