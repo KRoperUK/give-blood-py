@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Give Blood</title>
+  <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+  <header>
+    <h1>Give Blood</h1>
+    <p class="muted">
+      Read-only view of your appointments and availability.
+      <button id="refresh" type="button">Refresh</button>
+      <span id="updated"></span>
+    </p>
+  </header>
+
+  <section id="donor">
+    <p class="muted">Loading&hellip;</p>
+  </section>
+
+  <h2>Upcoming appointments</h2>
+  <section id="appointments">
+    <p class="muted">Loading&hellip;</p>
+  </section>
+
+  <h2>Availability</h2>
+
+  <div class="toolbar">
+    <div class="nav">
+      <button id="prev-month" type="button" title="Previous month">&lsaquo;</button>
+      <strong id="month-label"></strong>
+      <button id="next-month" type="button" title="Next month">&rsaquo;</button>
+      <button id="this-month" type="button">Today</button>
+    </div>
+    <label class="field">Centre <select id="centre-filter"></select></label>
+    <label class="field check">
+      <input type="checkbox" id="only-bookable" checked> Only show what I can book
+    </label>
+  </div>
+
+  <p class="muted" id="gate-note"></p>
+  <p class="hint" id="slot-hint" hidden>
+    Click a period to load its times. Clicking a time copies the reference and opens
+    <span class="mono">my.blood.co.uk</span> &mdash; booking is not possible from this page.
+  </p>
+  <p class="toast" id="toast"></p>
+
+  <div id="calendar" class="calendar">
+    <p class="muted">Loading&hellip;</p>
+  </div>
+
+  <div id="day-detail" hidden></div>
+
+  <script src="/static/index.js"></script>
+</body>
+</html>
