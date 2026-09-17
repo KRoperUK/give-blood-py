@@ -18,8 +18,17 @@ Run it:
     # then open http://127.0.0.1:8080
 
 Endpoints: ``/api/summary``, ``/api/appointments``, ``/api/centres``,
-``/api/availability``, ``/api/calendar``, ``/api/slots``, ``/healthz``. Add
-``?refresh=1`` to bypass the cache.
+``/api/availability``, ``/api/calendar``, ``/api/slots``, ``/api/slots/batch``,
+``/healthz``. Add ``?refresh=1`` to bypass the cache — that is what the UI's full
+refresh does.
+
+Reads are cached per kind rather than uniformly, because the underlying data
+changes at different rates: a centre's availability for ``--cache-ttl`` (five
+minutes by default), donor details and appointments for three times that, and
+individual slot times for a fifth and never served stale. Past its freshness
+window a value is still returned while it is refreshed in the background, so a
+dashboard that is a few minutes old renders instantly; ``?refresh=1`` awaits the
+fresh read instead.
 
 The calendar shows every session in the month you are looking at, per centre. Which
 of them are *bookable* is decided by the API's own fields — the later of the
@@ -37,12 +46,13 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import logging
 import os
 import re
 import sys
 import time
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -69,14 +79,9 @@ _LOGGER = logging.getLogger("give_blood_server")
 #: Where the front-end files live — this directory.
 ASSET_DIR = Path(__file__).resolve().parent
 
-#: The only files served, by name. A whitelist rather than a static route so the
-#: server cannot be talked into serving its own source.
-ASSETS: dict[str, str] = {
-    "index.html": "text/html",
-    "index.css": "text/css",
-    "index.js": "text/javascript",
-    "format.js": "text/javascript",
-}
+#: Vite builds the front end into ``dist/``; without it this process serves the API
+#: alone and says so at ``/``.
+BUILD_DIR = ASSET_DIR / "dist"
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
@@ -88,6 +93,14 @@ DEFAULT_CACHE_TTL = 300.0
 
 #: A period's start/end clock, as the API writes it: bare 24-hour HHMM.
 HHMM = re.compile(r"^([01]\d|2[0-3])[0-5]\d$")
+
+#: How many slot queries to have in flight at once. One period is one upstream
+#: request and a month of cells is a couple of hundred of them, so this is the
+#: knob that keeps a full calendar from looking like an attack.
+SLOT_CONCURRENCY = 4
+
+#: Ceiling on the periods one batch request may ask for.
+MAX_SLOT_BATCH = 200
 
 #: How many sessions to show per centre before it becomes a wall of dates.
 SESSIONS_SHOWN = 5
@@ -234,6 +247,11 @@ def session_payload(session: Session) -> dict[str, Any]:
     }
 
 
+def period_key(session_id: str, session_date: date, start: str, end: str) -> str:
+    """Identifies one period. Mirrors the key the front end builds."""
+    return f"{session_id}:{session_date.isoformat()}:{start}:{end}"
+
+
 def _session_date(session: Session) -> datetime:
     """Sort key for sessions, so undated ones land last rather than raising."""
     return session.session_date or datetime.max.replace(tzinfo=UTC)
@@ -296,6 +314,45 @@ def build_gate(account: AccountDetails, appointments: list[Appointment]) -> Gate
 # ---------------------------------------------------------------------------
 
 
+@dataclass(slots=True)
+class CacheEntry:
+    """One cached read."""
+
+    value: Any
+    #: Monotonic, for TTL arithmetic that clock changes cannot disturb.
+    stored_at: float
+    #: Wall clock, for telling the UI how old the data is.
+    fetched_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class Policy:
+    """How long one kind of read stays fresh, and how long it may be served stale."""
+
+    #: Seconds the value is served without any revalidation.
+    fresh: float
+    #: Further seconds during which the old value is returned *and* a refresh runs
+    #: in the background. ``None`` never serves a stale value.
+    stale: float | None
+
+
+def cache_policies(ttl: float) -> dict[str, Policy]:
+    """Per-kind freshness, scaled from the availability TTL.
+
+    These differ because the underlying data does. A donor's details and booked
+    appointments only change when they act, so minutes of staleness buy a fast
+    page for no real cost. A centre's session list changes as slots fill, which is
+    what ``ttl`` describes. An individual time is the volatile one: someone else
+    can take it between two page loads, and offering a slot that has gone is worse
+    than the wait, so slot reads are always revalidated rather than served stale.
+    """
+    return {
+        "snapshot": Policy(fresh=ttl * 3, stale=ttl * 12),
+        "sessions": Policy(fresh=ttl, stale=ttl * 6),
+        "slots": Policy(fresh=max(ttl / 5, 30.0), stale=None),
+    }
+
+
 class Dashboard:
     """Reads the API for the UI, with a short cache to spare the NHSBT rate limit."""
 
@@ -310,23 +367,93 @@ class Dashboard:
         self._client = client
         self._procedure_code = procedure_code
         self._days = days
-        self._cache_ttl = cache_ttl
-        self._cache: dict[str, tuple[float, Any]] = {}
+        self._policies = cache_policies(cache_ttl)
+        self._cache: dict[str, CacheEntry] = {}
+        #: One lock per key, so a burst of requests triggers a single upstream call.
+        self._locks: dict[str, asyncio.Lock] = {}
+        self._refreshing: set[str] = set()
+        self._tasks: set[asyncio.Task[None]] = set()
 
-    async def _cached(self, key: str, loader: Callable[[], Awaitable[Any]], *, refresh: bool = False) -> Any:
-        """Return a cached value, or load and store a fresh one.
+    async def close(self) -> None:
+        """Cancel any background refresh still in flight at shutdown."""
+        for task in list(self._tasks):
+            task.cancel()
+        if self._tasks:
+            await asyncio.gather(*self._tasks, return_exceptions=True)
 
-        The timestamp is taken before the load so a slow request cannot extend
-        the entry's life past its TTL.
+    async def _cached(
+        self,
+        key: str,
+        loader: Callable[[], Awaitable[Any]],
+        *,
+        kind: str,
+        refresh: bool = False,
+    ) -> Any:
+        """Return a cached value, or load one.
+
+        Past its freshness window a value is still returned, and a refresh is
+        started in the background — a page that is a few minutes out of date
+        renders instantly rather than waiting on the API. Past the stale ceiling,
+        or when the caller forces a refresh, the load is awaited.
         """
-        started = time.monotonic()
-        if not refresh:
-            cached = self._cache.get(key)
-            if cached is not None and started - cached[0] < self._cache_ttl:
-                return cached[1]
-        value = await loader()
-        self._cache[key] = (started, value)
-        return value
+        policy = self._policies[kind]
+        entry = self._cache.get(key)
+        if not refresh and entry is not None:
+            age = time.monotonic() - entry.stored_at
+            if age < policy.fresh:
+                return entry.value
+            if policy.stale is not None and age < policy.fresh + policy.stale:
+                self._revalidate(key, loader, kind=kind)
+                return entry.value
+        return await self._load(key, loader, kind=kind, refresh=refresh)
+
+    async def _load(
+        self,
+        key: str,
+        loader: Callable[[], Awaitable[Any]],
+        *,
+        kind: str,
+        refresh: bool,
+    ) -> Any:
+        """Load a value, holding a per-key lock so concurrent callers share one fetch."""
+        lock = self._locks.setdefault(key, asyncio.Lock())
+        async with lock:
+            # Another caller may have refreshed it while this one waited.
+            entry = self._cache.get(key)
+            if not refresh and entry is not None and time.monotonic() - entry.stored_at < self._policies[kind].fresh:
+                return entry.value
+            value = await loader()
+            self._cache[key] = CacheEntry(value=value, stored_at=time.monotonic(), fetched_at=datetime.now(UTC))
+            return value
+
+    def _revalidate(self, key: str, loader: Callable[[], Awaitable[Any]], *, kind: str) -> None:
+        """Refresh a stale value in the background, once per key."""
+        if key in self._refreshing:
+            return
+        self._refreshing.add(key)
+        task = asyncio.create_task(self._refresh(key, loader, kind=kind))
+        # Held so the task is not garbage collected mid-flight.
+        self._tasks.add(task)
+        task.add_done_callback(self._tasks.discard)
+
+    async def _refresh(self, key: str, loader: Callable[[], Awaitable[Any]], *, kind: str) -> None:
+        try:
+            await self._load(key, loader, kind=kind, refresh=True)
+        except Exception as err:  # noqa: BLE001 - a background refresh is never worth failing a request over
+            _LOGGER.warning("Background refresh of %s failed, still serving the old value: %s", key, err)
+        finally:
+            self._refreshing.discard(key)
+
+    def freshness(self, keys: Iterable[str]) -> dict[str, Any]:
+        """The oldest read behind a payload, so the UI can say how current it is."""
+        stamps = [self._cache[key].fetched_at for key in keys if key in self._cache]
+        if not stamps:
+            return {"as_of": None, "age_seconds": None}
+        oldest = min(stamps)
+        return {
+            "as_of": oldest.isoformat(),
+            "age_seconds": round((datetime.now(UTC) - oldest).total_seconds()),
+        }
 
     @property
     def window(self) -> tuple[date, date]:
@@ -336,7 +463,7 @@ class Dashboard:
 
     async def snapshot(self, *, refresh: bool = False) -> Any:
         """The donor snapshot — one pass for account, appointments and history."""
-        return await self._cached("snapshot", self._client.async_get_snapshot, refresh=refresh)
+        return await self._cached("snapshot", self._client.async_get_snapshot, kind="snapshot", refresh=refresh)
 
     async def summary(self, *, refresh: bool = False) -> dict[str, Any]:
         """Donor, eligibility and the state of the booking system."""
@@ -399,6 +526,10 @@ class Dashboard:
         limit = today + timedelta(days=self._days)
         return max(start or today, today), min(end or limit, limit)
 
+    def _session_key(self, venue_id: str, start: date, end: date) -> str:
+        """Cache key for one centre's sessions over a window."""
+        return f"sessions:{self._procedure_code}:{start.isoformat()}:{end.isoformat()}:{venue_id}"
+
     async def _centre_sessions(
         self,
         centre: Centre,
@@ -421,9 +552,9 @@ class Dashboard:
                 end_date=end,
             )
 
-        key = f"sessions:{self._procedure_code}:{start.isoformat()}:{end.isoformat()}:{centre.venue_id}"
+        key = self._session_key(centre.venue_id, start, end)
         try:
-            sessions = await self._cached(key, load, refresh=refresh)
+            sessions = await self._cached(key, load, kind="sessions", refresh=refresh)
         except GiveBloodError as err:
             _LOGGER.warning("Sessions failed for %s (%s): %s", centre.name, centre.venue_id, err)
             return [], str(err)
@@ -459,6 +590,9 @@ class Dashboard:
             "generated_at": datetime.now(UTC).isoformat(),
             "centres": payloads,
             "degraded": [payload["venue_id"] for payload in payloads if payload["error"]],
+            "cache": self.freshness(
+                ["snapshot", *(self._session_key(centre.venue_id, start, end) for centre in centres)]
+            ),
         }
 
     async def calendar(
@@ -494,7 +628,7 @@ class Dashboard:
         }
         if window_end < window_start:
             # Asked to search entirely past the horizon: nothing to fetch.
-            return {**payload, "outside_window": True}
+            return {**payload, "outside_window": True, "cache": self.freshness(["snapshot"])}
 
         results = await asyncio.gather(
             *(self._centre_sessions(c, window_start, window_end, refresh=refresh) for c in centres)
@@ -525,6 +659,11 @@ class Dashboard:
                 for day, entries in sorted(days.items())
             ],
             "degraded": degraded,
+            # `generated_at` is when this JSON was assembled; the reads behind it
+            # can be older, and that is what the UI should show the donor.
+            "cache": self.freshness(
+                ["snapshot", *(self._session_key(centre.venue_id, window_start, window_end) for centre in centres)]
+            ),
         }
 
     async def slots(
@@ -552,8 +691,9 @@ class Dashboard:
             )
 
         key = f"slots:{self._procedure_code}:{session_id}:{session_date.isoformat()}:{start}:{end}"
-        result = await self._cached(key, load, refresh=refresh)
+        result = await self._cached(key, load, kind="slots", refresh=refresh)
         return {
+            "key": period_key(session_id, session_date, start, end),
             "session_id": session_id,
             "date": session_date.isoformat(),
             "period": {"start": start, "end": end},
@@ -568,6 +708,39 @@ class Dashboard:
             ],
             "clashing_appointments": [appointment_payload(a) for a in result.clashing_appointments],
         }
+
+    async def slot_batch(self, periods: list[dict[str, str]], *, refresh: bool = False) -> list[dict[str, Any]]:
+        """Times for many periods at once.
+
+        One period is one upstream request, and a month of cells is a couple of
+        hundred of them, so the browser asks once and this fans out a few at a
+        time — bounded by :data:`SLOT_CONCURRENCY` rather than however many cells
+        happen to be on screen. Each period is cached individually, so a repeat
+        view costs nothing, and a period that fails is reported alongside the
+        ones that worked.
+        """
+        limit = asyncio.Semaphore(SLOT_CONCURRENCY)
+
+        async def one(period: dict[str, str]) -> dict[str, Any]:
+            session_date = date.fromisoformat(period["date"])
+            async with limit:
+                try:
+                    return await self.slots(
+                        period["session_id"],
+                        session_date=session_date,
+                        start=period["start"],
+                        end=period["end"],
+                        refresh=refresh,
+                    )
+                except GiveBloodError as err:
+                    _LOGGER.warning("Slots failed for %s: %s", period["session_id"], err)
+                    return {
+                        "key": period_key(period["session_id"], session_date, period["start"], period["end"]),
+                        "session_id": period["session_id"],
+                        "error": str(err),
+                    }
+
+        return list(await asyncio.gather(*(one(period) for period in periods)))
 
 
 # ---------------------------------------------------------------------------
@@ -599,18 +772,43 @@ async def error_middleware(
         return web.json_response({"error": str(err), "type": type(err).__name__}, status=502)
 
 
-async def asset(request: web.Request) -> web.Response:
-    """Serve one of the front-end files.
+DEV_HINT_HTML = """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Give Blood API</title>
+  <style>
+    body { font: 15px/1.6 system-ui, sans-serif; max-width: 44rem; margin: 3rem auto; padding: 0 1rem; }
+    code { background: rgba(127, 127, 127, 0.15); padding: 0.1rem 0.3rem; border-radius: 0.25rem; }
+    pre { background: rgba(127, 127, 127, 0.1); padding: 0.75rem 1rem; border-radius: 0.5rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Give Blood API</h1>
+  <p>The API is running; the front end has not been built.</p>
+  <p>For development, run the Vite dev server and open
+    <code>http://localhost:5173/</code> &mdash; it proxies <code>/api</code> here:</p>
+  <pre><code>npm --prefix examples/server/frontend install
+npm --prefix examples/server/frontend run dev</code></pre>
+  <p>Or build it once and reload this page:</p>
+  <pre><code>npm --prefix examples/server/frontend run build</code></pre>
+  <p>Either way, everything under <code>/api</code> is served from this process:
+    <code>/api/summary</code>, <code>/api/appointments</code>, <code>/api/centres</code>,
+    <code>/api/availability</code>, <code>/api/calendar</code>, <code>/api/slots</code>,
+    <code>/api/slots/batch</code>, and <code>/healthz</code>.</p>
+</body>
+</html>
+"""
 
-    Read per request rather than cached in memory: they are a few kilobytes, and
-    editing the CSS or JS then only needs a browser refresh, not a restart.
-    """
-    name = request.match_info.get("name", "index.html")
-    if name not in ASSETS:
-        raise web.HTTPNotFound()
+
+async def index(request: web.Request) -> web.Response:
+    """The built front end, or a pointer to the dev server when it isn't built."""
+    built = BUILD_DIR / "index.html"
+    if not built.is_file():
+        return web.Response(text=DEV_HINT_HTML, content_type="text/html", charset="utf-8")
     return web.Response(
-        body=(ASSET_DIR / name).read_bytes(),
-        content_type=ASSETS[name],
+        body=built.read_bytes(),
+        content_type="text/html",
         charset="utf-8",
         headers={"Cache-Control": "no-store"},
     )
@@ -647,6 +845,55 @@ async def api_calendar(request: web.Request) -> web.Response:
     return web.json_response(await dashboard.calendar(start=start, end=end, refresh=_wants_refresh(request)))
 
 
+def _period_request(entry: Any) -> dict[str, str] | None:
+    """Validate one period from a batch request, or ``None`` if it is malformed."""
+    if not isinstance(entry, dict):
+        return None
+    session_id = entry.get("session_id")
+    start = entry.get("start")
+    end = entry.get("end")
+    if not isinstance(session_id, str) or not session_id:
+        return None
+    if not isinstance(start, str) or not isinstance(end, str) or not HHMM.match(start) or not HHMM.match(end):
+        return None
+    try:
+        session_date = date.fromisoformat(str(entry.get("date")))
+    except ValueError:
+        return None
+    return {"session_id": session_id, "date": session_date.isoformat(), "start": start, "end": end}
+
+
+async def api_slots_batch(request: web.Request) -> web.Response:
+    """Times for many periods at once.
+
+    A POST because a month of cells is far too many periods for a query string.
+    It is still read-only: nothing here reaches a write endpoint.
+    """
+    try:
+        body = await request.json()
+    except json.JSONDecodeError:
+        return web.json_response({"error": "expected a JSON body"}, status=400)
+
+    entries = body.get("periods") if isinstance(body, dict) else None
+    if not isinstance(entries, list) or not entries:
+        return web.json_response({"error": "periods must be a non-empty list"}, status=400)
+    if len(entries) > MAX_SLOT_BATCH:
+        return web.json_response({"error": f"at most {MAX_SLOT_BATCH} periods per request"}, status=400)
+
+    periods: list[dict[str, str]] = []
+    for entry in entries:
+        period = _period_request(entry)
+        if period is None:
+            return web.json_response(
+                {"error": "each period needs session_id, date (YYYY-MM-DD), start and end (HHMM)"},
+                status=400,
+            )
+        periods.append(period)
+
+    dashboard = _dashboard(request)
+    return web.json_response({"periods": await dashboard.slot_batch(periods, refresh=_wants_refresh(request))})
+
+
 async def api_slots(request: web.Request) -> web.Response:
     """The individual times inside one session period."""
     query = request.query
@@ -681,17 +928,20 @@ def build_app(dashboard: Dashboard) -> web.Application:
     app["dashboard"] = dashboard
     app.add_routes(
         [
-            web.get("/", asset),
-            web.get("/static/{name}", asset),
             web.get("/api/summary", api_summary),
             web.get("/api/appointments", api_appointments),
             web.get("/api/centres", api_centres),
             web.get("/api/availability", api_availability),
             web.get("/api/calendar", api_calendar),
             web.get("/api/slots", api_slots),
+            web.post("/api/slots/batch", api_slots_batch),
             web.get("/healthz", healthz),
+            web.get("/", index),
         ]
     )
+    # Registered after the API so it cannot shadow it, and only when a build exists.
+    if (BUILD_DIR / "assets").is_dir():
+        app.router.add_static("/assets/", BUILD_DIR / "assets")
     return app
 
 
@@ -724,7 +974,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--cache-ttl",
         type=float,
         default=DEFAULT_CACHE_TTL,
-        help=f"Seconds to cache each read (default: {DEFAULT_CACHE_TTL:g})",
+        help=(
+            f"Seconds a centre's availability stays fresh (default: {DEFAULT_CACHE_TTL:g}); "
+            "donor details are held three times as long, individual slot times a fifth "
+            "and never served stale"
+        ),
     )
     parser.add_argument("-v", "--verbose", action="store_true", help="Debug logging")
     return parser
@@ -751,6 +1005,7 @@ async def serve(args: argparse.Namespace, email: str, password: str) -> int:
         try:
             await asyncio.Event().wait()
         finally:
+            await dashboard.close()
             await runner.cleanup()
     return 0
 

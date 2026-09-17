@@ -1,0 +1,22 @@
+{
+  "name": "give-blood-dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Front end for examples/server - a read-only Give Blood dashboard",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^3.37.0",
+    "@emotion/react": "^11.14.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.3.0"
+  }
+}
