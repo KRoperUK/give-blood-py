@@ -194,6 +194,18 @@ class VenueSummary(_Base):
     is_platelet_supported: bool = Field(default=False, alias="isPlateletSupported")
     is_donor_centre: bool = Field(default=False, alias="isDonorCentre")
 
+    #: Second capability vocabulary. A venue nested inside ``nearestPlasmaVenue``
+    #: or ``registrationVenue`` carries **both** naming schemes at once, and they
+    #: can contradict each other — the ``is*`` names are the stale ones there.
+    #: These stay ``None`` when the payload omits the bare set (venues inside
+    #: ``results[]`` send only the ``is*`` names), so ``None`` means "not
+    #: disclosed" rather than "unsupported". Neither value is picked as the
+    #: winner: which one to trust is a judgement call about an API that
+    #: contradicts itself, so the caller decides.
+    whole_blood_supported: bool | None = Field(default=None, alias="wholeBloodSupported")
+    plasma_supported: bool | None = Field(default=None, alias="plasmaSupported")
+    platelet_supported: bool | None = Field(default=None, alias="plateletSupported")
+
     @property
     def display_name(self) -> str:
         """Venue name with its sub-location, e.g. "Town Hall (Main Hall)"."""

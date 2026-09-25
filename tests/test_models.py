@@ -226,6 +226,35 @@ class TestVenueSummary:
         assert venue.latitude is None
         assert venue.longitude is None
 
+    def test_nested_venue_exposes_both_capability_vocabularies(self) -> None:
+        """A nested venue carries two contradicting capability sets; keep both.
+
+        ``plasmaSupported`` is accurate here and ``isPlasmaSupported`` is stale,
+        so the bare set must be parsed rather than dropped into ``model_extra``.
+        """
+        venue = VenueSummary.model_validate(
+            {
+                "venueId": "CV0N8",
+                "venueName": "Birmingham, Plasma Donor Centre",
+                "wholeBloodSupported": False,
+                "plasmaSupported": True,
+                "plateletSupported": False,
+                "isWholeBloodSupported": False,
+                "isPlasmaSupported": False,
+                "isPlateletSupported": False,
+                "isDonorCentre": False,
+            }
+        )
+        assert venue.plasma_supported is True
+        assert venue.is_plasma_supported is False
+        assert "plasmaSupported" not in (venue.model_extra or {})
+
+    def test_bare_capability_fields_are_none_when_not_sent(self) -> None:
+        """``results[]`` venues send only the ``is*`` set; absence reads as ``None``."""
+        venue = VenueSummary.model_validate({"venueId": "TSTV1", "isPlasmaSupported": True})
+        assert venue.plasma_supported is None
+        assert venue.is_plasma_supported is True
+
     def test_address_one_line(self) -> None:
         venue = VenueSummary.model_validate(
             {"address": {"lines": ["1 Example Street", "Testville"], "postcode": "SW1A 1AA"}}
