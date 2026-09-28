@@ -18,6 +18,10 @@ build/
 .venv*/
 .python-version
 
+# Node — the dashboard front end under examples/server/frontend. Dependencies are
+# never committed; dist/ above already covers its build output.
+node_modules/
+
 # Tooling caches
 .pytest_cache/
 .ruff_cache/
