@@ -11,6 +11,7 @@ from nhs_give_blood import (
     AwardsData,
     DonationHistory,
     MessageBundle,
+    NearestVenue,
     PreferredVenue,
     SessionSlots,
     Slot,
@@ -232,6 +233,43 @@ class TestVenueSummary:
         )
         assert venue.address is not None
         assert venue.address.one_line == "1 Example Street, Testville, SW1A 1AA"
+
+    def test_both_capability_vocabularies_are_kept(self) -> None:
+        """The nested venue sends two flag sets that disagree; neither is dropped.
+
+        Seen under ``nearestPlasmaVenue.venue``, where a plasma centre arrives as
+        ``plasmaSupported: true`` alongside ``isPlasmaSupported: false``. Reading
+        only the ``is*`` set reported the centre as not supporting plasma.
+        https://github.com/KRoperUK/give-blood-py/issues/23
+        """
+        nearest = NearestVenue.model_validate(
+            {
+                "venue": {
+                    "venueId": "TSTV2",
+                    "venueName": "Testville, Plasma Donor Centre",
+                    "wholeBloodSupported": False,
+                    "plasmaSupported": True,
+                    "plateletSupported": False,
+                    "isWholeBloodSupported": False,
+                    "isPlasmaSupported": False,
+                    "isPlateletSupported": False,
+                },
+                "isPlasmaSupported": True,
+            }
+        )
+        venue = nearest.venue
+        assert venue is not None
+        assert venue.plasma_supported is True
+        assert venue.is_plasma_supported is False, "the contradicting is* value is still visible"
+        assert "plasmaSupported" not in (venue.model_extra or {})
+
+    def test_absent_second_vocabulary_is_none_not_false(self) -> None:
+        """Most venues send only the ``is*`` set, so absent must not read as False."""
+        venue = VenueSummary.model_validate({"venueId": "TSTV1", "isPlasmaSupported": True})
+        assert venue.is_plasma_supported is True
+        assert venue.plasma_supported is None
+        assert venue.whole_blood_supported is None
+        assert venue.platelet_supported is None
 
 
 class TestPreferredVenue:
