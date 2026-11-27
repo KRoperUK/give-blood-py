@@ -19,15 +19,22 @@ import os
 import sys
 from datetime import datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import aiohttp
 
 from .client import GiveBloodClient
-from .const import PROCEDURE_CODE_WHOLE_BLOOD
+from .const import PROCEDURE_CODE_WHOLE_BLOOD, VENUE_TIMEZONE
 from .exceptions import GiveBloodError
 from .models import Appointment
 
 _LOGGER = logging.getLogger("nhs_give_blood.cli")
+
+#: Aware fallbacks for sorting entries with no date. Every model datetime
+#: carries the venue zone, so a naive ``datetime.min/max`` would raise
+#: ``TypeError`` against them; these sort dateless entries last instead.
+_MAX_DATETIME = datetime.max.replace(tzinfo=ZoneInfo(VENUE_TIMEZONE))
+_MIN_DATETIME = datetime.min.replace(tzinfo=ZoneInfo(VENUE_TIMEZONE))
 
 
 def _load_dotenv() -> None:
@@ -81,7 +88,7 @@ async def _cmd_appointments(client: GiveBloodClient, args: argparse.Namespace) -
     if not appointments:
         print("No upcoming appointments.")
         return 0
-    for appointment in sorted(appointments, key=lambda a: a.starts_at or datetime.max):
+    for appointment in sorted(appointments, key=lambda a: a.starts_at or _MAX_DATETIME):
         print(_describe(appointment))
     return 0
 
@@ -89,7 +96,7 @@ async def _cmd_appointments(client: GiveBloodClient, args: argparse.Namespace) -
 async def _cmd_history(client: GiveBloodClient, args: argparse.Namespace) -> int:
     """List donation history."""
     history = await client.async_get_donation_history()
-    for donation in sorted(history.donation, key=lambda d: d.donated_at or datetime.min, reverse=True):
+    for donation in sorted(history.donation, key=lambda d: d.donated_at or _MIN_DATETIME, reverse=True):
         print(f"{_fmt_dt(donation.donated_at)}  type={donation.type or '?'}  {donation.venue_name or '—'}")
     if history.has_further_donations:
         print("\n(API truncated the list — more donations exist than shown.)")
