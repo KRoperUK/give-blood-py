@@ -18,6 +18,11 @@ value can never be mistaken for one.
 Add ``pii-allow`` to a line as a comment to accept a specific finding.
 
 Exit codes: 0 clean, 1 findings.
+
+Mirrored at ``give-blood-hass/scripts/check_pii.py``: the two copies must stay
+in sync, so a new pattern belongs in both. (The hass copy additionally skips
+``.ha-config``, developer Home Assistant state — keep that carve-out when
+syncing.)
 """
 
 from __future__ import annotations
