@@ -58,11 +58,6 @@ TOKEN_EXPIRED_CODE: Final = "TOKEN_EXPIRED"  # noqa: S105 - a wire status code, 
 EP_LOGIN: Final = "/api/auth/v2/login"
 EP_LOGOUT: Final = "/api/auth/logout"
 EP_REFRESH: Final = "/api/auth/refresh"
-EP_VALIDATE: Final = "/api/auth/validate"
-EP_CHANGE_PASSWORD: Final = "/api/auth/change-password"  # noqa: S105 - URL path, not a credential
-EP_RESET_PASSWORD: Final = "/api/auth/reset/password"  # noqa: S105 - URL path, not a credential
-EP_REQUEST_USERNAME: Final = "/api/auth/request/username"
-EP_REQUEST_PASSWORD_RESET: Final = "/api/auth/request/password-reset"  # noqa: S105 - URL path
 
 EP_ACCOUNT_DETAILS: Final = "/api/account/v2/details"
 EP_DONATION_HISTORY: Final = "/api/account/donation-history"
@@ -77,7 +72,6 @@ EP_SESSION_SLOTS: Final = "/api/appointments/{session_id}/slots"
 EP_VENUES: Final = "/api/venues"
 EP_ADDRESS_SEARCH: Final = "/api/address-search"
 EP_SESSIONS_AT_VENUE: Final = "/api/sessions/{venue_id}"
-EP_SESSIONS_PAR: Final = "/api/sessions/par"
 
 EP_MESSAGES: Final = "/api/messages"
 EP_FEATURES: Final = "/api/features"
