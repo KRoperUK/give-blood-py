@@ -51,6 +51,13 @@ class TestClassifyAuthError:
         assert type(error) is GiveBloodAuthError
         assert error.reauth_required
 
+    def test_missing_route_is_transient_not_reauth(self) -> None:
+        """A 404 cannot be caused by bad credentials, so it must not prompt reauth."""
+        error = classify_auth_error(404, {"message": "not found"})
+        assert type(error) is GiveBloodAuthError
+        assert error.transient
+        assert not error.reauth_required
+
     def test_status_none_is_handled(self) -> None:
         assert classify_auth_error(None, None).reauth_required
 

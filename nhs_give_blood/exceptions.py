@@ -175,6 +175,19 @@ def classify_auth_error(status: int | None, body: Any) -> GiveBloodAuthError:
             details=body,
         )
 
+    if status == 404:
+        # A missing route is infrastructure, not bad credentials — the retired
+        # /api/auth/validate answers 404 today, and a renamed login route would
+        # otherwise nag every user to re-enter a password that is not the problem.
+        return GiveBloodAuthError(
+            f"Authentication endpoint not found: {summary}",
+            code=code,
+            status=status,
+            reauth_required=False,
+            transient=True,
+            details=body,
+        )
+
     if code == "TOKEN_EXPIRED":
         return GiveBloodTokenExpiredError(status=status, details=body)
 
