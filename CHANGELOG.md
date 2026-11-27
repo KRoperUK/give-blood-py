@@ -3,6 +3,38 @@
 This file is maintained by [release-please](https://github.com/googleapis/release-please) from
 Conventional Commit messages. Do not edit it by hand.
 
+## [0.1.0](https://github.com/KRoperUK/give-blood-py/compare/v0.3.0...v0.1.0) (2026-11-27)
+
+
+### Features
+
+* async Python client for the NHS Give Blood donor API ([322fd24](https://github.com/KRoperUK/give-blood-py/commit/322fd243636a3a321ad6ceb0d05ad32e5b47f054))
+* **examples:** read-only dashboard server ([#22](https://github.com/KRoperUK/give-blood-py/issues/22)) ([8e0ebf6](https://github.com/KRoperUK/give-blood-py/commit/8e0ebf681e370df28a20e176c3e0504de0cf7e28))
+* live smoke tests and a completed read surface ([#19](https://github.com/KRoperUK/give-blood-py/issues/19)) ([a8c48ec](https://github.com/KRoperUK/give-blood-py/commit/a8c48ec4f5231a8cb79d8117d66ea439c3025bf7))
+
+
+### Bug Fixes
+
+* **auth:** treat a 404 from auth endpoints as transient, not reauth-required ([#53](https://github.com/KRoperUK/give-blood-py/issues/53)) ([971e466](https://github.com/KRoperUK/give-blood-py/commit/971e466cb94b73f985ed42afa8fe24830ab498ed))
+* **cli:** sort dateless appointments and donations last instead of crashing ([#52](https://github.com/KRoperUK/give-blood-py/issues/52)) ([8061bf9](https://github.com/KRoperUK/give-blood-py/commit/8061bf95192d081fd37390c6f7da1e7e4cd1eacd))
+* **deps:** require pytest &gt;=9.0.3 ([4426fc4](https://github.com/KRoperUK/give-blood-py/commit/4426fc46b33d5d2bcfce5366746fbf8b4fcce0e4))
+* **models:** keep both venue capability vocabularies ([#24](https://github.com/KRoperUK/give-blood-py/issues/24)) ([e42cd27](https://github.com/KRoperUK/give-blood-py/commit/e42cd27cfdd4863f04a75a29fe242095a6066e4a)), closes [#23](https://github.com/KRoperUK/give-blood-py/issues/23)
+* **models:** return no start time when the appointment clock is missing ([#54](https://github.com/KRoperUK/give-blood-py/issues/54)) ([de7fb6b](https://github.com/KRoperUK/give-blood-py/commit/de7fb6bc4f5c43193cea072d7ffbc668532fb151))
+* **server:** evict cache entries past their stale ceiling ([#58](https://github.com/KRoperUK/give-blood-py/issues/58)) ([3fcaffa](https://github.com/KRoperUK/give-blood-py/commit/3fcaffab72c142cbc18923aea60282bb031a51f3))
+* **server:** warn when bound off loopback ([#57](https://github.com/KRoperUK/give-blood-py/issues/57)) ([acfd947](https://github.com/KRoperUK/give-blood-py/commit/acfd947fdf1f7bb6eb2b8a9953f79c7cc1a0f506))
+* stop the PII guard flagging retina asset filenames as email addresses ([71d89da](https://github.com/KRoperUK/give-blood-py/commit/71d89da6906b00dda9cba748a65c9c9c64f763b7))
+* unblock the CI security and pre-commit jobs ([cf1d495](https://github.com/KRoperUK/give-blood-py/commit/cf1d495816a6cca0f2e7edafa0881aa1b1e27422))
+
+
+### Documentation
+
+* **security:** mark check_pii.py as mirrored with the hass copy ([#59](https://github.com/KRoperUK/give-blood-py/issues/59)) ([919ac42](https://github.com/KRoperUK/give-blood-py/commit/919ac4224475428972b4a68611c7a6e0131a57f4))
+
+
+### Miscellaneous Chores
+
+* pin the first release to 0.1.0 ([2514e10](https://github.com/KRoperUK/give-blood-py/commit/2514e1071f3a2e76b4ef7eee7aff4ee08d33cf36))
+
 ## [0.3.0](https://github.com/KRoperUK/give-blood-py/compare/v0.2.0...v0.3.0) (2026-09-28)
 
 
