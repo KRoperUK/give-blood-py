@@ -3,7 +3,7 @@
 # discovery, dependency groups) live under `[tool.poetry]`.
 [project]
 name = "nhs-give-blood"
-version = "0.2.0"
+version = "0.3.0"
 description = "Async Python client for the NHS Give Blood (NHSBT) donor app API"
 authors = [{ name = "Kieran Roper" }]
 license = "MIT"
@@ -28,8 +28,8 @@ classifiers = [
     "Topic :: Home Automation",
 ]
 dependencies = [
-    "aiohttp>=3.9.0,<4.0.0",
-    "pydantic>=2.0.0,<3.0.0",
+    "aiohttp>=3.14.5,<4.0.0",
+    "pydantic>=2.14.1,<3.0.0",
 ]
 
 [project.urls]
@@ -49,16 +49,16 @@ packages = [{ include = "nhs_give_blood" }]
 [tool.poetry.group.dev.dependencies]
 # 9.0.3 is a floor, not a preference: pytest below it has a tmpdir-handling
 # vulnerability (GHSA, dev scope) with no fix in the 8.x series.
-pytest = ">=9.0.3,<10.0.0"
-pytest-asyncio = "^1.0.0"
+pytest = ">=9.2.0,<10.0.0"
+pytest-asyncio = "^1.4.1"
 pytest-cov = "^7.0.0"
 aresponses = "^3.0.0"
-ruff = "==0.16.7"
-mypy = "^2.0.0"
+ruff = "==0.17.3"
+mypy = "^2.4.1"
 bandit = "^1.8.0"
 detect-secrets = "^1.5.0"
-pre-commit = "^4.0.0"
-python-dotenv = "^1.2.1"
+pre-commit = "^4.7.0"
+python-dotenv = "^1.2.4"
 
 [tool.ruff]
 line-length = 120

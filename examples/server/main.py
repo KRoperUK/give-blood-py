@@ -107,6 +107,7 @@ SESSIONS_SHOWN = 5
 
 #: Credential names understood in the environment and the env file.
 ENV_EMAIL = "NHS_GIVE_BLOOD_EMAIL"
+# pragma: allowlist nextline secret - the value is an env var *name*, not a credential
 ENV_PASSWORD = "NHS_GIVE_BLOOD_PASSWORD"  # noqa: S105 - an env var *name*, not a credential
 
 
