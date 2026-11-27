@@ -1002,6 +1002,12 @@ async def serve(args: argparse.Namespace, email: str, password: str) -> int:
         await runner.setup()
         site = web.TCPSite(runner, args.host, args.port)
         await site.start()
+        if args.host not in ("127.0.0.1", "::1", "localhost"):
+            _LOGGER.warning(
+                "Bound to %s: donor details are served with no login of their own. "
+                "Prefer the loopback interface unless you know who can reach this port.",
+                args.host,
+            )
         _LOGGER.info("Serving on http://%s:%s/ — press Ctrl-C to stop", args.host, args.port)
         try:
             await asyncio.Event().wait()
