@@ -324,6 +324,8 @@ class CacheEntry:
     stored_at: float
     #: Wall clock, for telling the UI how old the data is.
     fetched_at: datetime
+    #: Which policy governs this entry, so expiry can evict it.
+    kind: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -424,8 +426,36 @@ class Dashboard:
             if not refresh and entry is not None and time.monotonic() - entry.stored_at < self._policies[kind].fresh:
                 return entry.value
             value = await loader()
-            self._cache[key] = CacheEntry(value=value, stored_at=time.monotonic(), fetched_at=datetime.now(UTC))
+            self._cache[key] = CacheEntry(
+                value=value, stored_at=time.monotonic(), fetched_at=datetime.now(UTC), kind=kind
+            )
+            self._evict(exclude={key})
             return value
+
+    def _evict(self, *, exclude: set[str]) -> None:
+        """Drop entries past their stale ceiling, so the cache cannot grow forever.
+
+        A second viewing of a month of sessions must not keep the first one in
+        memory for the life of the process. Slots are never served stale, so
+        theirs expires with freshness; everything else expires past its stale
+        window. Keys being loaded elsewhere are left alone.
+        """
+        now = time.monotonic()
+        for cached_key in list(self._cache):
+            if cached_key in exclude:
+                continue
+            entry = self._cache[cached_key]
+            policy = self._policies.get(entry.kind)
+            if policy is None:
+                continue
+            if now - entry.stored_at <= policy.fresh + (policy.stale or 0):
+                continue
+            lock = self._locks.get(cached_key)
+            if lock is not None and lock.locked():
+                continue
+            del self._cache[cached_key]
+            if lock is not None:
+                del self._locks[cached_key]
 
     def _revalidate(self, key: str, loader: Callable[[], Awaitable[Any]], *, kind: str) -> None:
         """Refresh a stale value in the background, once per key."""
