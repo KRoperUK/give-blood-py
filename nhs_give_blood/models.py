@@ -332,7 +332,9 @@ class Appointment(_Base):
             return None
         clock = parse_wire_time(self.time)
         if clock is None:
-            return self.session.session_date
+            # No usable clock: midnight would masquerade as a real start time
+            # and sort ahead of every timed appointment that day.
+            return None
         return self.session.session_date.replace(hour=clock.hour, minute=clock.minute)
 
     @property

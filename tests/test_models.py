@@ -133,9 +133,17 @@ class TestAppointment:
         appointment = Appointment.model_validate({"time": "T1730", "session": {"sessionDate": "2026-10-08T00:00:00"}})
         assert appointment.starts_at == datetime(2026, 10, 8, 17, 30, tzinfo=LONDON)
 
-    def test_missing_clock_falls_back_to_session_date(self) -> None:
+    def test_missing_clock_yields_no_start_time(self) -> None:
+        # A midnight fallback would masquerade as a real start and sort ahead
+        # of every timed appointment that day.
         appointment = Appointment.model_validate({"session": {"sessionDate": "2026-10-08T00:00:00"}})
-        assert appointment.starts_at == datetime(2026, 10, 8, tzinfo=LONDON)
+        assert appointment.starts_at is None
+
+    def test_malformed_clock_yields_no_start_time(self) -> None:
+        appointment = Appointment.model_validate(
+            {"time": "not-a-clock", "session": {"sessionDate": "2026-10-08T00:00:00"}}
+        )
+        assert appointment.starts_at is None
 
     def test_missing_session_yields_no_start_time(self) -> None:
         assert Appointment.model_validate({"time": "T1730"}).starts_at is None
