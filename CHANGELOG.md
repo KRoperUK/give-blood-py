@@ -3,6 +3,18 @@
 This file is maintained by [release-please](https://github.com/googleapis/release-please) from
 Conventional Commit messages. Do not edit it by hand.
 
+## [0.3.0](https://github.com/KRoperUK/give-blood-py/compare/v0.2.0...v0.3.0) (2026-09-28)
+
+
+### Features
+
+* **examples:** read-only dashboard server ([#22](https://github.com/KRoperUK/give-blood-py/issues/22)) ([8e0ebf6](https://github.com/KRoperUK/give-blood-py/commit/8e0ebf681e370df28a20e176c3e0504de0cf7e28))
+
+
+### Bug Fixes
+
+* **models:** keep both venue capability vocabularies ([#24](https://github.com/KRoperUK/give-blood-py/issues/24)) ([e42cd27](https://github.com/KRoperUK/give-blood-py/commit/e42cd27cfdd4863f04a75a29fe242095a6066e4a)), closes [#23](https://github.com/KRoperUK/give-blood-py/issues/23)
+
 ## [0.2.0](https://github.com/KRoperUK/give-blood-py/compare/v0.1.0...v0.2.0) (2026-09-15)
 
 
